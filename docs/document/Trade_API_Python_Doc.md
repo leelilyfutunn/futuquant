@@ -1,47 +1,53 @@
-[TOC]
-
 #接口概要
 **交易接口有频率限制，30秒内不能超过20次交易请求**
 
 
 #港股交易接口
 
-### 实例化上下文对象
+**实例化上下文对象**
 
 ```python
 tradehk_ctx = OpenHKTradeContext(host='127.0.0.1', sync_port=11111)
 ```
 
 **功能**：创建上下文，建立网络连接
+
 **参数**:
+
 **host**：网络连接地址。
+
 **sync_port**：网络连接端口，用于同步通信。
 
 
 
-### 解锁接口 unlock_trade
+**解锁接口 unlock_trade**
 
 ```python
 ret_code, ret_data = tradehk_ctx.unlock_trade(password)
 ```
 
-**功能**：港股交易解锁。港股模拟交易不需要解锁，真实交易需要解锁
+**功能**：
+
+港股交易解锁。港股模拟交易不需要解锁，真实交易需要解锁
 
 **参数**：
+
 **password**: 用户交易密码。
 
 **返回**：
+
 ret_code失败时，ret_data返回为错误描述字符串；
 正常情况下，ret_code为0, ret_data返回None。
 
 **失败情况**：
 
 1.  交易密码错误
+
 2.  客户端内部或网络错误
 
 
 
-### 下单接口 place_order
+**下单接口 place_order**
 
 ```python
 ret_code, ret_data = tradehk_ctx.place_order(price, qty, strcode, orderside, ordertype=0, envtype=0)
@@ -85,18 +91,21 @@ ret_code失败时，ret_data返回为错误描述字符串；
 正常情况下，ret_code为0，ret_data为一个dataframe, 其中包括：
 
 **envtype**: 交易环境参数。0是真实交易，1是仿真交易
+
 **orderid**: 订单ID。
 
 
 **失败情况**：
 
 1. 参数错误
+
 2. 客户端内部或网络错误
+
 3. 不满足下单条件
 
 
 
-### 设置订单状态 set_order_status
+**设置订单状态 set_order_status**
 
 ```python
 ret_code, ret_data = tradehk_ctx.set_order_status(status, orderid=0, envtype=0)
@@ -142,7 +151,7 @@ ret_code失败时，ret_data返回为错误描述字符串；
 
 
 
-### 修改订单 change_order
+**修改订单 change_order**
 
 ```python
 ret_code, ret_data = tradehk_ctx.change_order(price, qty, orderid=0, envtype=0)
@@ -182,7 +191,7 @@ ret_code失败时，ret_data返回为错误描述字符串；
 
 
 
-### 查询账户信息 accinfo_query
+**查询账户信息 accinfo_query**
 
 ```python
 ret_code, ret_data = tradehk_ctx.accinfo_query(envtype=0)
@@ -220,7 +229,7 @@ ret_code失败时，ret_data返回为错误描述字符串；
 
 
 
-### 查询订单列表 order_list_query
+**查询订单列表 order_list_query**
 
 ```python
 ret_code, ret_data = tradehk_ctx.order_list_query(statusfilter="", envtype=0)
@@ -292,7 +301,7 @@ ret_code失败时，ret_data返回为错误描述字符串；
 
 
 
-### 查询持仓列表 position_list_query
+**查询持仓列表 position_list_query**
 
 ```python
 ret_code, ret_data = tradehk_ctx.position_list_query(envtype=0)
@@ -333,7 +342,7 @@ ret_code失败时，ret_data返回为错误描述字符串；
 
 
 
-### 查询成交列表 deal_list_query
+**查询成交列表 deal_list_query**
 
 ```python
 ret_code, ret_data = tradehk_ctx.deal_list_query(envtype=0)
@@ -382,7 +391,7 @@ ret_code失败时，ret_data返回为错误描述字符串；
 
 #美股交易接口
 
-### 实例化上下文对象
+**实例化上下文对象**
 
 ```python
 tradeus_ctx = OpenUSTradeContext(host='127.0.0.1', sync_port=11111)
@@ -395,7 +404,7 @@ tradeus_ctx = OpenUSTradeContext(host='127.0.0.1', sync_port=11111)
 
 
 
-### 解锁接口 unlock_trade
+**解锁接口 unlock_trade**
 
 ```python
 ret_code, ret_data = tradeus_ctx.unlock_trade(password)
@@ -418,7 +427,7 @@ ret_code失败时，ret_data返回为错误描述字符串；
 
 
 
-### 下单接口 place_order
+**下单接口 place_order**
 
 ```python
 ret_code, ret_data = tradeus_ctx.place_order(price, qty, strcode, orderside, ordertype=2, envtype=0)
@@ -468,7 +477,7 @@ ret_code失败时，ret_data返回为错误描述字符串；
 
 
 
-### 设置订单状态 set_order_status
+**设置订单状态 set_order_status**
 
 ```python
 ret_code, ret_data = tradeus_ctx.set_order_status(status=0, orderid=0, envtype=0)
@@ -502,8 +511,7 @@ ret_code失败时，ret_data返回为错误描述字符串；
 
 
 
-
-### 修改订单 change_order
+**修改订单 change_order**
 
 ```python
 ret_code, ret_data = tradeus_ctx.change_order(price, qty, orderid=0, envtype=0)
@@ -538,7 +546,7 @@ ret_code失败时，ret_data返回为错误描述字符串；
 
 
 
-### 查询账户信息 accinfo_query
+**查询账户信息 accinfo_query**
 
 ```python
 ret_code, ret_data = tradeus_ctx.accinfo_query(envtype=0)
@@ -570,7 +578,7 @@ ret_code失败时，ret_data返回为错误描述字符串；
 
 
 
-### 查询订单列表 order_list_query
+**查询订单列表 order_list_query**
 
 ```python
 ret_code, ret_data = tradeus_ctx.order_list_query(statusfilter="", envtype=0)
@@ -638,7 +646,7 @@ ret_code失败时，ret_data返回为错误描述字符串；
 
 
 
-### 查询持仓列表 position_list_query
+**查询持仓列表 position_list_query**
 
 ```python
 ret_code, ret_data = tradeus_ctx.position_list_query(envtype=0)
@@ -672,9 +680,7 @@ ret_code失败时，ret_data返回为错误描述字符串；
 1. 参数错误
 2. 客户端内部或网络错误
 
-
-
-### 查询成交列表 deal_list_query
+**查询成交列表 deal_list_query**
 
 ```python
 ret_code, ret_data = tradeus_ctx.deal_list_query(envtype=0)
