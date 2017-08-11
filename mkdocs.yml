@@ -1,0 +1,10 @@
+site_name: futuquant
+pages:
+- [index.md, Home]
+- [document/Futunn_API_Intro.md, 富途牛牛行情交易API入门指引]
+- [document/Hist_Kline_Download_Intro.md, 历史K线数据下载指引]
+- [document/Market_API_Python_Doc.md, 行情数据API]
+- [document/Trade_API_Python_Doc.md, 交易API]
+- [json/PLS_API_Intro.md, PLS接口]
+- [Q&A.md, Q&A]
+theme: readthedocs

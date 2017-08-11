@@ -1,6 +1,5 @@
-### 富途牛牛行情交易API入门指引
 
-**准备工作**
+###准备工作
 
 1. 准备一台Windows 32bit 或者64bit 的电脑（win7/8/10）  
 2. 下载富途牛牛客户端，需要在QQ群108534288群文件中下载专用版本![image](https://github.com/FutunnOpen/OpenQuant/raw/master/Resources/Download.png)  
@@ -10,7 +9,7 @@
 
 ---
 
-**安装部署**
+###安装部署
 
 1. 安装富途牛牛客户端，注册并登录，可以在客户端直接注册或者在网站注册，网站注册链接<https://passport.futu5.com/?target=http%3A%2F%2Fwww.futunn.com%2F#reg>
 
@@ -22,7 +21,7 @@
 
 ---
 
-**使用**
+###使用
 
 1. 在开启了富途牛牛客户端或者利用云端获取数据的情况下，在Pycharm中运行项目代码中OpenQuant\OpenInterface\Python下的sample.py，即可进行调试，运行。
 
