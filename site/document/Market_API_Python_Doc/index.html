@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>行情数据API - futuquant</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "\u884c\u60c5\u6570\u636eAPI";
+    var mkdocs_page_input_path = "document\\Market_API_Python_Doc.md";
+    var mkdocs_page_url = "/document/Market_API_Python_Doc/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> futuquant</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../Futunn_API_Intro/">富途牛牛行情交易API入门指引</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../Hist_Kline_Download_Intro/">历史K线数据下载指引</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">行情数据API</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#_1">接口概要</a></li>
+    
+
+    <li class="toctree-l2"><a href="#_2">接口列表</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#_3">参数类型定义</a></li>
+        
+            <li><a class="toctree-l3" href="#_4">错误码说明</a></li>
+        
+            <li><a class="toctree-l3" href="#_5">详细说明</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../Trade_API_Python_Doc/">交易API</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../json/PLS_API_Intro/">PLS接口</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../Q%26A/">Q&A</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">futuquant</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>行情数据API</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="_1">接口概要</h1>
+<p>开放接口基于PC客户端获取数据，提供给用户使用。</p>
+<p>开放接口分为<strong>低频接口</strong>、<strong>订阅接口</strong>和<strong>高频接口</strong>，以及<strong>回调处理基类</strong>：</p>
+<p><strong>低频接口</strong>主要用来获取股票市场静态和全局的数据，让用户得到股票的基本信息，不允许高频调用。</p>
+<p>如果要实时获取数据，则需要调用高频接口。</p>
+<p><strong>订阅接口</strong>是用来管理高频接口使用额度，包括订阅、退订和查询额度。</p>
+<p><em>订阅</em>：在使用高频接口前，需要订阅想要的数据。订阅成功后，则可以使用高频接口获取；订阅各类数据有额度限制：</p>
+<p><strong>用户额度 &gt;= K线订阅数 * K线权重 + 逐笔订阅数 * 逐笔权重  + 报价订阅数 * 报价权重 + 摆盘订阅数 * 摆盘权重</strong></p>
+<p><strong>订阅使用的额度不能超过用户额度，用户额度也就是订阅的上限为500个订阅单位</strong></p>
+<table>
+<thead>
+<tr>
+<th>订阅数据</th>
+<th>额度权重（所占订阅单位）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>K线</td>
+<td>2</td>
+</tr>
+<tr>
+<td>逐笔</td>
+<td>5（牛熊证为1）</td>
+</tr>
+<tr>
+<td>报价</td>
+<td>1</td>
+</tr>
+<tr>
+<td>摆盘</td>
+<td>5（牛熊证为1）</td>
+</tr>
+<tr>
+<td>分时</td>
+<td>2</td>
+</tr>
+<tr>
+<td>经纪队列</td>
+<td>5（牛熊证为1）</td>
+</tr>
+</tbody>
+</table>
+<p><em>查询额度</em>：用来查询现在各项额度占用情况。用户可以看到每一种类型数据都有订阅了哪些股票；然后利用退订操作来去掉不需要的股票数据。</p>
+<p><em>退订</em>：用户可以退订指定股票和指定数据类型，空出额度。但是退订的时间限制为1分钟，即订阅某支股票某个订阅位1分钟之后才能退订。</p>
+<p><strong>如果数据不订阅，直接调用高频接口则会返回失败。</strong>
+订阅时可选择推送选项。推送开启后，程序就会持续收到客户端推送过来的行情数据。用户可以通过继承<strong>回调处理基类</strong>，并实现用户自己的子类来使用数据推送功能。</p>
+<p><strong>高频接口</strong>可以获取实时数据，可以针对小范围内的股票频繁调用；比如需要跟踪某个股票的逐笔和摆盘变化等；在调用之前需要将频繁获取的数据订阅注册。</p>
+<p><strong>回调处理基类</strong>用于实现数据推送功能，用户在此基类上实现子类并实例化后，当客户端不断推送数据时，程序就会调用对应的对象处理。</p>
+<h1 id="_2">接口列表</h1>
+<p><strong>上下文控制</strong></p>
+<pre><code class="python">start()              # 开启异步数据接收
+
+stop()               # 停止异步数据接收
+
+set_handler(handler) # 设置用于异步处理数据的回调对象
+</code></pre>
+
+<p><strong>低频数据接口</strong></p>
+<pre><code class="python">get_trading_days(market, start_date=None, end_date=None)  # 获取交易日
+get_stock_basicinfo(market, stock_type='STOCK')           # 获取股票信息
+get_history_kline(code, start=None, end=None, ktype='K_DAY', autype='qfq')  # 获取历史K线
+get_autype_list(code_list)      # 获取复权因子
+get_market_snapshot(code_list)  # 获取市场快照
+get_plate_list(market, plate_class)        #获取板块集合下的子板块列表
+get_plate_stock(market, stock_code)        #获取板块下的股票列表
+</code></pre>
+
+<p><strong>订阅接口</strong></p>
+<pre><code class="python">subscribe(stock_code, data_type, push=False) # 订阅
+unsubscribe(stock_code, data_type)           # 退订
+query_subscription()                         # 查询订阅
+</code></pre>
+
+<p><strong>高频数据接口</strong></p>
+<pre><code class="python">get_stock_quote(code_list) #  获取报价
+get_rt_ticker(code, num)   # 获取逐笔
+get_cur_kline(code, num, ktype=' K_DAY', autype='qfq') # 获取当前K线
+get_order_book(code)       # 获取摆盘
+get_rt_data                #获取分时数据
+get_broker_queue           #获取经纪队列
+</code></pre>
+
+<p><strong>回调处理基类</strong></p>
+<pre><code class="python">StockQuoteHandlerBase # 报价处理基类
+
+OrderBookHandlerBase  # 摆盘处理基类
+
+CurKlineHandlerBase   # 实时K线处理基类
+
+TickerHandlerBase     # 逐笔处理基类
+
+RTDataHandlerBase     # 分时数据处理基类
+
+BrokerHandlerBase     # 经纪队列处理基类
+</code></pre>
+
+<h2 id="_3">参数类型定义</h2>
+<p><strong>市场标识</strong> market，（字符串类型）：</p>
+<table>
+<thead>
+<tr>
+<th>股票市场</th>
+<th>标识</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>港股</td>
+<td>"HK"</td>
+</tr>
+<tr>
+<td>美股</td>
+<td>"US"</td>
+</tr>
+<tr>
+<td>沪股</td>
+<td>"SH"</td>
+</tr>
+<tr>
+<td>深股</td>
+<td>"SZ"</td>
+</tr>
+<tr>
+<td>香港期货</td>
+<td>"HK_FUTURE"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>证券类型</strong> stock_type，（字符串类型）：</p>
+<table>
+<thead>
+<tr>
+<th>股票类型</th>
+<th>标识</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>正股</td>
+<td>"STOCK"</td>
+</tr>
+<tr>
+<td>指数</td>
+<td>"IDX"</td>
+</tr>
+<tr>
+<td>ETF基金</td>
+<td>"ETF"</td>
+</tr>
+<tr>
+<td>涡轮牛熊</td>
+<td>"WARRANT"</td>
+</tr>
+<tr>
+<td>债券</td>
+<td>"BOND"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>复权类型</strong>autype，（字符串类型）：</p>
+<table>
+<thead>
+<tr>
+<th>复权类型</th>
+<th>标识</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>前复权</td>
+<td>"qfq"</td>
+</tr>
+<tr>
+<td>后复权</td>
+<td>"hfq"</td>
+</tr>
+<tr>
+<td>不复权</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>K线类型</strong>，（字符串类型）：</p>
+<table>
+<thead>
+<tr>
+<th>K线类型</th>
+<th>标识</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1分K</td>
+<td>"K_1M"</td>
+</tr>
+<tr>
+<td>5分K</td>
+<td>"K_5M"</td>
+</tr>
+<tr>
+<td>15分K</td>
+<td>"K_15M"</td>
+</tr>
+<tr>
+<td>30分K</td>
+<td>"K_30M"</td>
+</tr>
+<tr>
+<td>60分K</td>
+<td>"K_60M"</td>
+</tr>
+<tr>
+<td>日K</td>
+<td>"K_DAY"</td>
+</tr>
+<tr>
+<td>周K</td>
+<td>"K_WEEK"</td>
+</tr>
+<tr>
+<td>月K</td>
+<td>"K_MON"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>订阅数据类型</strong>，（字符串类型）</p>
+<table>
+<thead>
+<tr>
+<th>订阅类型</th>
+<th>标识</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>逐笔</td>
+<td>"TICKER"</td>
+</tr>
+<tr>
+<td>报价</td>
+<td>"QUOTE"</td>
+</tr>
+<tr>
+<td>摆盘</td>
+<td>"ORDER_BOOK"</td>
+</tr>
+<tr>
+<td>1分K</td>
+<td>"K_1M"</td>
+</tr>
+<tr>
+<td>5分K</td>
+<td>"K_5M"</td>
+</tr>
+<tr>
+<td>15分K</td>
+<td>"K_15M"</td>
+</tr>
+<tr>
+<td>30分K</td>
+<td>"K_30M"</td>
+</tr>
+<tr>
+<td>60分K</td>
+<td>"K_60M"</td>
+</tr>
+<tr>
+<td>日K</td>
+<td>"K_DAY"</td>
+</tr>
+<tr>
+<td>周K</td>
+<td>"K_WEEK"</td>
+</tr>
+<tr>
+<td>月K</td>
+<td>"K_MON"</td>
+</tr>
+<tr>
+<td>分时</td>
+<td>"RT_DATA"</td>
+</tr>
+<tr>
+<td>经纪队列</td>
+<td>"BROKER"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>板块分类类型</strong> ，（字符串类型）：</p>
+<table>
+<thead>
+<tr>
+<th>板块分类</th>
+<th>标识</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>所有板块</td>
+<td>"ALL"</td>
+</tr>
+<tr>
+<td>行业分类</td>
+<td>"INDUSTRY"</td>
+</tr>
+<tr>
+<td>地域分类</td>
+<td>"REGION"</td>
+</tr>
+<tr>
+<td>概念分类</td>
+<td>"CONCEPT"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>股票代码模式</strong>为：“ 市场+原始代码"
+例如，“HK.00700”, “SZ.000001”, “US.AAPL”</p>
+<p><strong>注意，原始代码部分的字符串必须和客户端显示的完全匹配</strong>，比如：
+腾讯为“HK.00700”，而不能是“HK.700”</p>
+<p><strong>对于用户来说接口会返回两个值</strong>
+ret_code(调用执行返回状态，0为成功，其它为失败)和ret_data：</p>
+<table>
+<thead>
+<tr>
+<th>ret_code</th>
+<th>ret_data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>成功</td>
+<td>ret_data为实际数据</td>
+</tr>
+<tr>
+<td>失败</td>
+<td>ret_data为错误描述字符串</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">错误码说明</h2>
+<table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>错误说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>无错误</td>
+</tr>
+<tr>
+<td>400</td>
+<td>未知错误</td>
+</tr>
+<tr>
+<td>401</td>
+<td>版本不支持</td>
+</tr>
+<tr>
+<td>402</td>
+<td>股票未找到</td>
+</tr>
+<tr>
+<td>403</td>
+<td>协议号不支持</td>
+</tr>
+<tr>
+<td>404</td>
+<td>参数错误</td>
+</tr>
+<tr>
+<td>405</td>
+<td>频率错误（请求过快）</td>
+</tr>
+<tr>
+<td>406</td>
+<td>订阅达到上限</td>
+</tr>
+<tr>
+<td>407</td>
+<td>未订阅</td>
+</tr>
+<tr>
+<td>408</td>
+<td>未满足反订阅时间限制</td>
+</tr>
+<tr>
+<td>501</td>
+<td>服务器忙</td>
+</tr>
+<tr>
+<td>502</td>
+<td>超时</td>
+</tr>
+<tr>
+<td>503</td>
+<td>网络错误</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_5">详细说明</h2>
+<h3 id="_6">实例化上下文对象</h3>
+<pre><code class="python">quote_ctx = OpenQuoteContext(host='127.0.0.1', port=11111)
+</code></pre>
+
+<p><strong>功能</strong>：创建上下文，建立网络连接</p>
+<p><strong>参数</strong>:</p>
+<p><strong>host</strong>：网络连接地址</p>
+<p><strong>sync_port</strong>：网络连接端口，用于同步通信。</p>
+<p><strong>async_port</strong>：网络连接端口，用于异步通信，接收客户端的数据推送。</p>
+<h3 id="start">启动推送接收 start</h3>
+<pre><code class="python">quote_ctx.start()
+</code></pre>
+
+<p><strong>功能</strong>：启动推送接收线程，异步接收客户端推送的数据。</p>
+<h3 id="stop">停止推送接收 stop</h3>
+<pre><code class="python">quote_ctx.stop()
+</code></pre>
+
+<p><strong>功能</strong>：停止推送接收线程，不再接收客户端推送的数据。</p>
+<h3 id="set_handler">设置异步回调处理对象 set_handler</h3>
+<pre><code class="python">quote_ctx.set_handler(handler)
+</code></pre>
+
+<p><strong>功能</strong>：设置回调处理对象，用于接收线程在收到数据后调用。用户应该将自己实现的回调对象设置，以便实现事件驱动。</p>
+<p>handler必须是以下几种类的子类对象：</p>
+<table>
+<thead>
+<tr>
+<th>类名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>StockQuoteHandlerBase</strong></td>
+<td>报价处理基类</td>
+</tr>
+<tr>
+<td><strong>OrderBookHandlerBase</strong></td>
+<td>摆盘处理基类</td>
+</tr>
+<tr>
+<td><strong>CurKlineHandlerBase</strong></td>
+<td>实时K线处理基类</td>
+</tr>
+<tr>
+<td><strong>TickerHandlerBase</strong></td>
+<td>逐笔处理基类</td>
+</tr>
+<tr>
+<td><strong>RTDataHandlerBase</strong></td>
+<td>分时数据处理基类</td>
+</tr>
+<tr>
+<td><strong>BrokerHandlerBase</strong></td>
+<td>经纪队列处理基类</td>
+</tr>
+</tbody>
+</table>
+<h3 id="get_trading_days">获取交易日 get_trading_days</h3>
+<pre><code class="python">ret_code, ret_data = quote_ctx.get_trading_days(market, start_date=None, end_date=None)
+</code></pre>
+
+<p><strong>功能</strong>：取指定市场，某个日期时间段的交易日列表</p>
+<p><strong>参数</strong>：</p>
+<p><strong>market</strong>: 市场标识</p>
+<p><strong>start_date</strong>: 起始日期;<br />
+string类型，格式YYYY-MM-DD，仅指定到日级别即可，默认值None表示最近一年前的日期</p>
+<p><strong>end_date</strong>: 结束日期;  string类型，格式YYYY-MM-DD，仅指定到日级别即可，取默认值None表示取当前日期</p>
+<p><strong>返回</strong>：</p>
+<p>ret_code失败时，ret_data返回为错误描述字符串；
+客户端无数据时，ret_code为成功，ret_data返回None 
+正常情况下，ret_data为日期列表（每个日期是string类型），如果指定时间段中无交易日，则ret_data为空列表。</p>
+<p><strong>失败情况</strong>：
+1. 市场标识不合法
+2. 起止日期输入不合法
+3. 客户端内部或网络错误</p>
+<h3 id="get_stock_basicinfo">获取股票信息  get_stock_basicinfo</h3>
+<pre><code class="python">ret_code, ret_data = quote_ctx.get_stock_basicinfo(market, stock_type='STOCK')
+</code></pre>
+
+<p><strong>功能</strong>：取符合市场和股票类型条件的股票简要信息</p>
+<p><strong>参数</strong>：</p>
+<p><strong>market</strong>: 市场标识, string，例如，”HK”，”US”；具体见市场标识说明</p>
+<p><strong>stock_type</strong>: 证券类型, string, 例如，”STOCK”，”ETF”；具体见证券类型说明</p>
+<p><strong>证券类型</strong> stock_type，（字符串类型）：</p>
+<table>
+<thead>
+<tr>
+<th>股票类型</th>
+<th>标识</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>正股</td>
+<td>"STOCK"</td>
+</tr>
+<tr>
+<td>指数</td>
+<td>"IDX"</td>
+</tr>
+<tr>
+<td>ETF基金</td>
+<td>"ETF"</td>
+</tr>
+<tr>
+<td>涡轮牛熊</td>
+<td>"WARRANT"</td>
+</tr>
+<tr>
+<td>债券</td>
+<td>"BOND"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>返回</strong>：
+ret_code失败时，ret_data返回为错误描述字符串；
+客户端无符合条件数据时，ret_code为成功，ret_data返回None 
+正常情况下，ret_data为一个dataframe，其中包括：</p>
+<p><strong>code</strong>：股票代码；string，例如： ”HK.00700”，“US.AAPL” </p>
+<p><strong>name</strong>：股票名称；string </p>
+<p><strong>lot_size</strong>：每手股数；int </p>
+<p><strong>stock_type</strong>：股票类型；string，例如： ”STOCK”，”ETF” </p>
+<p><strong>stock_child_type</strong>: 股票子类型；仅支持窝轮，其他为0，string，例如："BEAR"，"BULL" </p>
+<p><strong>owner_stock_code</strong>：所属正股；仅支持窝轮，其他为0 </p>
+<p><strong>listing_date</strong>: 上市日期： str </p>
+<p><strong>失败情况</strong>：
+1. 市场或股票类型不合法 
+2. 客户端内部或网络错误</p>
+<h3 id="get_autype_list">获取复权因子 get_autype_list</h3>
+<pre><code class="python">ret_code, ret_data = quote_ctx.get_autype_list(code_list)
+</code></pre>
+
+<p><strong>功能</strong>：获取复权因子数据 </p>
+<p><strong>参数</strong>：</p>
+<p><strong>code_list</strong>: 股票代码列表，例如，HK.00700，US.AAPL</p>
+<p><strong>返回</strong>：</p>
+<p>ret_code失败时，ret_data返回为错误描述字符串； 
+客户端无符合条件数据时，ret_code为成功，ret_data返回None 
+正常情况下，ret_data为一个dataframe，其中包括： </p>
+<p><strong>code</strong>：股票代码，string，例如： ”HK.00700”，“US.AAPL” </p>
+<p><strong>ex_div_date</strong>：除权除息日，string类型，格式YYYY-MM-DD </p>
+<p><strong>split_ratio</strong>：拆合股比例 double，例如，对于5股合1股为1/5，对于1股拆5股为5/1 </p>
+<p><strong>per_cash_div</strong>：每股派现；double </p>
+<p><strong>per_share_div_ratio</strong>：每股送股比例； double </p>
+<p><strong>per_share_trans_ratio</strong>：每股转增股比例；  double </p>
+<p><strong>allotment_ratio</strong>：    每股配股比例；double </p>
+<p><strong>allotment_price</strong>：配股价；double </p>
+<p><strong>stk_spo_ratio</strong>： 增发比例：double </p>
+<p><strong>stk_spo_price</strong>  增发价格：double </p>
+<p><strong>forward_adj_factorA</strong>：前复权因子A；double </p>
+<p><strong>forward_adj_factorB</strong>：前复权因子B；double </p>
+<p><strong>backward_adj_factorA</strong>：后复权因子A；double </p>
+<p><strong>backward_adj_factorB</strong>：后复权因子B；double </p>
+<p>返回数据中不一定包含所有codelist中的代码，调用方自己需要检查，哪些股票代码是没有返回复权数据的，未返回复权数据的股票说明没有找到相关信息。 </p>
+<p><strong>复权价格 = 复权因子A  * 价格 + 复权因子B</strong> </p>
+<p><strong>失败情况</strong>： </p>
+<p>1．  Codelist中股票代码不合法 </p>
+<p>2．  客户端内部或网络错误 </p>
+<h3 id="k-get_history_kline">获取历史K线 get_history_kline</h3>
+<pre><code class="python">ret_code, ret_data = quote_ctx.get_history_kline(code, start=None, end=None, ktype='K_DAY', autype='qfq')
+</code></pre>
+
+<p><strong>功能</strong>： 获取指定股票K线历史数据 </p>
+<p><strong>参数</strong>： </p>
+<p><strong>code</strong>：股票代码 </p>
+<p><strong>start</strong> ：开始时间, string; YYYY-MM-DD；为空时取去当前时间; </p>
+<p><strong>end</strong>  ： 结束时间, string; YYYY-MM-DD；为空时取当前时间; </p>
+<p><strong>ktype</strong> ：k线类型，默认为日K </p>
+<p><strong>autype</strong>  复权类型，string；”qfq”-前复权，”hfq”-后复权，None-不复权，默认为”qfq” </p>
+<p>开始结束时间按照闭区间查询，时间查询以k线时间time_key作为比较标准。即满足 
+start&lt;=Time_key&lt;=end条件的k线作为返回内容，k线时间time_key的设定标准在返回值中说明 </p>
+<p><strong>返回</strong>： </p>
+<p>ret_code失败时，ret_data返回为错误描述字符串； 
+客户端无符合条件数据时，ret_code为成功，返回None  </p>
+<p>正常情况下返回K线数据为一个DataFrame包含: </p>
+<p><strong>code</strong>： 股票代码；string </p>
+<p><strong>time_key</strong>：  K线时间 string  “YYYY-MM-DD HH:mm:ss” </p>
+<p><strong>open</strong>： 开盘价；double </p>
+<p><strong>high</strong>： 最高价；double </p>
+<p><strong>close</strong>： 收盘价；double </p>
+<p><strong>low</strong>： 最低价：double </p>
+<p><strong>volume</strong>： 成交量；long </p>
+<p><strong>turnover</strong> ：成交额；double </p>
+<p>对于日K线，time_key为当日时间具体到日，比如说2016-12-23日的日K，K线时间为” 2016-12-23 00:00:00” </p>
+<p>对于分K线，time_key为当日时间具体到分，例如，
+1分K，覆盖时间为9：35：00到9：35：59的分K，K线时间time_key为”2016-12-23 09:36:00” 
+5分K，覆盖时间为10：05：00到10：09：59的5分K，K线时间time_key为”2016-12-23 10:10:00” 
+15分K，覆盖时间为10：00：00到10：14：59的15分K，K线时间time_key为”2016-12-23 10:15:00” 
+30分K，覆盖时间为10：00：00到10：29：59的30分K，K线时间time_key为” 2016-12-23 10:30:00” 
+60分K，覆盖时间为10：30：00到11：29：59的60分K，K线时间time_key为” 2016-12-23 11:30:00” </p>
+<p>对于周K线，12月19日到12月25日的周K线，K线时间time_key为” 2016-12-19 00:00:00”  </p>
+<p>对于月K线，12月的月K线时间time_key为” 2016-12-01 00:00:00”，即为当月1日时间 </p>
+<p><strong>失败情况</strong>: </p>
+<ol>
+<li>
+<p>股票代码不合法 </p>
+</li>
+<li>
+<p>PLS接口返回错误  </p>
+</li>
+</ol>
+<h3 id="get_market_snapshot">获取市场快照 get_market_snapshot</h3>
+<pre><code class="python">ret_code, ret_data = quote_ctx.get_market_snapshot(code_list):
+</code></pre>
+
+<p><strong>功能</strong>：一次性获取最近当前股票列表的快照数据（每日变化的信息），该接口对股票个数有限制，一次最多传入200只股票，频率限制每5秒一次</p>
+<p><strong>参数</strong>：</p>
+<p><strong>code_list</strong>: 股票代码列表，例如，HK.00700，US.AAPL
+传入的codelist只允许包含1种股票类型。</p>
+<p><strong>返回</strong>：</p>
+<p>ret_code失败时，ret_data返回为错误描述字符串；
+客户端无符合条件数据时，ret_code为成功，ret_data返回None 
+正常情况下，ret_data为一个dataframe，其中包括：</p>
+<p><strong>code</strong> ：股票代码；string</p>
+<p><strong>update_time</strong>：    更新时间(yyyy-MM-dd HH:mm:ss)；string </p>
+<p><strong>last_price</strong> ：     最新价格；float </p>
+<p><strong>open_price</strong>：  今日开盘价；float </p>
+<p><strong>high_price</strong>：  最高价格；float </p>
+<p><strong>low_price</strong>：       最低价格；float </p>
+<p><strong>prev_close_price</strong>：   昨收盘价格；float </p>
+<p><strong>volume</strong>： 成交数量； long </p>
+<p><strong>turnover</strong>：   成交金额；float </p>
+<p><strong>turnover_rate</strong>：  换手率；float </p>
+<p><strong>suspension</strong>：   是否停牌(True表示停牌)；bool </p>
+<p><strong>listing_date</strong> ：  上市日期 (yyyy-MM-dd)；string </p>
+<p><strong>circular_market_val</strong>：  流通市值；float </p>
+<p><strong>total_market_val</strong>:         总市值；float </p>
+<p><strong>wrt_valid</strong>：      是否是窝轮；bool </p>
+<p><strong>wrt_conversion_ratio</strong>:       换股比率；float </p>
+<p><strong>wrt_type</strong>：       窝轮类型；1=认购证 2=认沽证 3=牛证 4=熊证 string </p>
+<p><strong>wrt_strike_price</strong>：       行使价格；float </p>
+<p><strong>wrt_maturity_date</strong>:      格式化窝轮到期时间； string </p>
+<p><strong>wrt_end_trade</strong>:      格式化窝轮最后交易时间；string </p>
+<p><strong>wrt_code</strong>:       窝轮对应的正股；string </p>
+<p><strong>wrt_recovery_price</strong>:     窝轮回收价；float </p>
+<p><strong>wrt_street_vol</strong>:     窝轮街货量；float </p>
+<p><strong>wrt_issue_vol</strong>:      窝轮发行量；float </p>
+<p><strong>wrt_street_ratio</strong>:       窝轮街货占比；float </p>
+<p><strong>wrt_delta</strong>:      窝轮对冲值；float </p>
+<p><strong>wrt_implied_volatility</strong>:     窝轮引伸波幅；float </p>
+<p><strong>wrt_premium</strong>:        窝轮溢价；float </p>
+<p><strong>lot_size</strong>：每手股数；int </p>
+<p>返回DataFrame，包含上述字段</p>
+<p><strong>窝轮类型</strong> wrt_type，（字符串类型）：</p>
+<table>
+<thead>
+<tr>
+<th>窝轮类型</th>
+<th>标识</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"CALL"</td>
+<td>认购证</td>
+</tr>
+<tr>
+<td>"PUT"</td>
+<td>认沽证</td>
+</tr>
+<tr>
+<td>"BULL"</td>
+<td>牛证</td>
+</tr>
+<tr>
+<td>"BEAR"</td>
+<td>熊证</td>
+</tr>
+<tr>
+<td>"N/A"</td>
+<td>未知或服务器没相关数据</td>
+</tr>
+</tbody>
+</table>
+<p>返回数据量不一定与codelist长度相等， 用户需要自己判断</p>
+<p><strong>调用频率限制：</strong> 
+<strong>5s一次</strong> </p>
+<p><strong>失败情况</strong>: </p>
+<ol>
+<li>
+<p>Codelist中股票代码不合法 </p>
+</li>
+<li>
+<p>Codelist长度超过规定数量 </p>
+</li>
+<li>
+<p>客户端内部或网络错误 </p>
+</li>
+<li>
+<p>传入的codelist包含多种股票类型 </p>
+</li>
+</ol>
+<h3 id="get_rt_data">获取分时数据  get_rt_data</h3>
+<pre><code class="python">ret_code, ret_data = quote_ctx.get_rt_data(code)
+</code></pre>
+
+<p><strong>功能</strong>：获取指定股票的分时数据</p>
+<p><strong>参数</strong>：</p>
+<p><strong>code</strong>: 股票代码，例如，HK.00700，US.APPL</p>
+<p><strong>返回</strong>：</p>
+<p>ret_code失败时，ret_data返回为错误描述字符串； 
+客户端无符合条件数据时，ret_code为成功，ret_data返回None 
+正常情况下，ret_data为一个dataframe，其中包括：</p>
+<p><strong>code</strong>: 股票代码： string </p>
+<p><strong>time</strong>：时间；string </p>
+<p><strong>data_status</strong>：数据状态；bool，正确为True，伪造为False </p>
+<p><strong>opened_mins</strong>: 开盘多少分钟：int </p>
+<p><strong>cur_price</strong>：当前价格：float </p>
+<p><strong>last_close</strong>: 昨天收盘的价格，float </p>
+<p><strong>avg_price</strong>: 平均价格，float </p>
+<p><strong>volume</strong>: 成交量，float </p>
+<p><strong>turnover</strong>:  成交额，float </p>
+<p><strong>失败情况</strong>：</p>
+<ol>
+<li>
+<p>code不合法 </p>
+</li>
+<li>
+<p>code是未对RT_DATA类型订阅的股票  </p>
+</li>
+<li>
+<p>客户端内部或网络错误 </p>
+</li>
+</ol>
+<h3 id="get_plate_list">获取板块集合下的子板块列表 get_plate_list</h3>
+<pre><code class="python">ret_code, ret_data = quote_ctx.get_plate_list(market, plate_class)
+</code></pre>
+
+<p><strong>功能</strong>： 获取板块集合下的子板块列表 </p>
+<p><strong>参数</strong>：</p>
+<p><strong>market</strong>：市场标识，注意这里不区分沪，深,输入沪或者深都会返回沪深市场的子板块（这个是和客户端保持一致的）</p>
+<p><strong>plate_class</strong> ：板块分类, string; 例如，"ALL", "INDUSTRY"</p>
+<p><strong>板块分类类型</strong> ，（字符串类型）：</p>
+<table>
+<thead>
+<tr>
+<th>板块分类</th>
+<th>标识</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"ALL"</td>
+<td>所有板块</td>
+</tr>
+<tr>
+<td>"INDUSTRY"</td>
+<td>行业分类</td>
+</tr>
+<tr>
+<td>"REGION"</td>
+<td>地域分类</td>
+</tr>
+<tr>
+<td>"CONCEPT"</td>
+<td>概念分类</td>
+</tr>
+</tbody>
+</table>
+<p><strong>返回</strong>：</p>
+<p>ret_code失败时，ret_data返回为错误描述字符串； 
+客户端无符合条件数据时，ret_code为成功，返回None  </p>
+<p>正常情况下返回K线数据为一个DataFrame包含:</p>
+<p><strong>code</strong>： 板块代码；string </p>
+<p><strong>plate_name</strong>： 板块名称；string </p>
+<p><strong>plate_id</strong>: 板块ID：string </p>
+<p>港股美股市场的地域分类数据暂时为空 </p>
+<p><strong>失败情况</strong>：</p>
+<ol>
+<li>
+<p>市场标识不合法 </p>
+</li>
+<li>
+<p>板块分类不合法 </p>
+</li>
+<li>
+<p>客户端内部或网络错误 </p>
+</li>
+</ol>
+<h3 id="get_plate_stock">获取板块下的股票列表  get_plate_stock</h3>
+<pre><code class="python">ret_code, ret_data = quote_ctx.get_plate_stock(plate_code)
+</code></pre>
+
+<p><strong>功能</strong>：获取特定板块下的股票列表,注意这里不区分沪，深,输入沪或者深都会返回沪深市场</p>
+<p><strong>参数</strong>：</p>
+<p><strong>plate_code</strong>: 板块代码, string, 例如，”SH.BK0001”，”SH.BK0002”，先利用获取子版块列表函数获取子版块代码</p>
+<p><strong>返回</strong>：</p>
+<p>ret_code失败时，ret_data返回为错误描述字符串；
+客户端无符合条件数据时，ret_code为成功，ret_data返回None </p>
+<p>正常情况下，ret_data为一个dataframe，其中包括：</p>
+<p><strong>code</strong>：；股票代码：string，例如： ”SZ.000158”，“SZ.000401” </p>
+<p><strong>lot_size</strong>：每手股数；int </p>
+<p><strong>stock_name</strong>：股票名称；string，例如： ”天然乳品”，”大庆乳业” </p>
+<p><strong>owner_market</strong>: 所属股票的市场，仅支持窝轮，其他为空，string </p>
+<p><strong>stock_child_type</strong>: 股票子类型；仅支持窝轮，其他为0，string，例如："BEAR"，"BULL" </p>
+<p><strong>stock_type</strong>：股票类型：string, 例如，"BOND", "STOCK" </p>
+<table>
+<thead>
+<tr>
+<th>股票类型</th>
+<th>标识</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"STOCK"</td>
+<td>正股</td>
+</tr>
+<tr>
+<td>"IDX"</td>
+<td>指数</td>
+</tr>
+<tr>
+<td>"ETF"</td>
+<td>ETF基金</td>
+</tr>
+<tr>
+<td>"WARRANT"</td>
+<td>涡轮牛熊</td>
+</tr>
+<tr>
+<td>"BOND"</td>
+<td>债券</td>
+</tr>
+</tbody>
+</table>
+<p><strong>股票子类型</strong> wrt_type，（字符串类型）：</p>
+<table>
+<thead>
+<tr>
+<th>股票子类型</th>
+<th>标识</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"CALL"</td>
+<td>认购证</td>
+</tr>
+<tr>
+<td>"PUT"</td>
+<td>认沽证</td>
+</tr>
+<tr>
+<td>"BULL"</td>
+<td>牛证</td>
+</tr>
+<tr>
+<td>"BEAR"</td>
+<td>熊证</td>
+</tr>
+<tr>
+<td>"N/A"</td>
+<td>未知或服务器没相关数据</td>
+</tr>
+</tbody>
+</table>
+<p><strong>失败情况</strong>：</p>
+<ol>
+<li>
+<p>市场或板块代码不合法，或者该板块不存在  </p>
+</li>
+<li>
+<p>客户端内部或网络错误 </p>
+</li>
+</ol>
+<h3 id="get_broker_queue">获取经纪队列  get_broker_queue</h3>
+<pre><code class="python">ret_code, bid_data, ask_data = quote_ctx.get_broker_queue(code)
+</code></pre>
+
+<p><strong>功能</strong>：获取股票的经纪队列</p>
+<p><strong>参数</strong>：</p>
+<p><strong>code</strong>: 股票代码, string, 例如，”HK.00700”</p>
+<p><strong>返回</strong>：</p>
+<p>ret_code失败时，bid_data返回为错误描述字符串； 
+客户端无符合条件数据时，ret_code为成功，ask_data, bid_data返回None 
+正常情况下，ask_data, bid_data均为dataframe， 
+其中bid_data是买盘的数据，包括： </p>
+<p><strong>bid_broker_id</strong>: 经纪买盘id；int </p>
+<p><strong>bid_broker_name</strong>：经纪买盘名称；string，例如： ”高盛”，”法巴” </p>
+<p><strong>bid_broker_pos</strong>: 经纪档位：int, 例如：0，1 </p>
+<p>其中ask_data是卖盘的数据，包括： </p>
+<p><strong>ask_broker_id</strong>：经纪卖盘id；int </p>
+<p><strong>ask_broker_name</strong>：经纪卖盘名称；string，例如： ”高盛”，”法巴” </p>
+<p><strong>ask_broker_pos</strong>: 经纪档位：int, 例如：0，1 </p>
+<p><strong>失败情况</strong>： </p>
+<ol>
+<li>
+<p>股票代码不合法，不存在 </p>
+</li>
+<li>
+<p>客户端内部或网络错误 </p>
+</li>
+</ol>
+<h3 id="get_global_state">获取牛牛程序全局状态  get_global_state</h3>
+<pre><code class="python">ret_code, state_dict = quote_ctx.get_global_state() 
+</code></pre>
+
+<p><strong>功能</strong>：获取牛牛程序全局状态 </p>
+<p><strong>参数</strong>：无</p>
+<p><strong>返回</strong>：
+ret_code失败时，ret_data返回为错误描述字符串； 
+客户端无符合条件数据时，ret_code为成功，ret_data返回None  </p>
+<p>正常情况下，ret_data为dict，包括：</p>
+<p><strong>Trade_Logined</strong>: 是否登陆交易服务器,int(0|1), 1 表示登陆，0表示未登陆  </p>
+<p><strong>Quote_Logined</strong>：是否登陆行情服务器,int(0|1), 1 表示登陆，0表示未登陆 </p>
+<p><strong>Market_HK</strong>: 港股主板市场状态,int,字段定义详见下表 </p>
+<p><strong>Market_US</strong>: 美股Nasdaq市场状态,int, 字段定义详见下表 </p>
+<p><strong>Market_SH</strong>: 沪市状态,int,字段定义详见下表 </p>
+<p><strong>Market_SZ</strong>: 深市状态,int,字段定义详见下表 </p>
+<p><strong>Market_HKFuture</strong>: 港股期货市场状态,int,字段定义详见下表 </p>
+<p><strong>市场字段说明</strong> ： </p>
+<table>
+<thead>
+<tr>
+<th>市场状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>未开盘</td>
+</tr>
+<tr>
+<td>1</td>
+<td>竞价交易（港股）</td>
+</tr>
+<tr>
+<td>2</td>
+<td>早盘前等待开盘（港股）</td>
+</tr>
+<tr>
+<td>3</td>
+<td>早盘（港股）</td>
+</tr>
+<tr>
+<td>4</td>
+<td>午休（A股、港股）</td>
+</tr>
+<tr>
+<td>5</td>
+<td>午盘（A股、港股）/ 盘中（美股）</td>
+</tr>
+<tr>
+<td>6</td>
+<td>交易日结束（A股、港股）/ 已收盘（美股）</td>
+</tr>
+<tr>
+<td>8</td>
+<td>盘前开始（美股）</td>
+</tr>
+<tr>
+<td>9</td>
+<td>盘前结束（美股）</td>
+</tr>
+<tr>
+<td>10</td>
+<td>盘后开始（美股）</td>
+</tr>
+<tr>
+<td>11</td>
+<td>盘后结束（美股）</td>
+</tr>
+<tr>
+<td>12</td>
+<td>内部状态，用于交易日切换</td>
+</tr>
+<tr>
+<td>13</td>
+<td>夜市交易中（港期货）</td>
+</tr>
+<tr>
+<td>14</td>
+<td>夜市收盘（港期货）</td>
+</tr>
+<tr>
+<td>15</td>
+<td>日市交易中（港期货）</td>
+</tr>
+<tr>
+<td>16</td>
+<td>日市午休（港期货）</td>
+</tr>
+<tr>
+<td>17</td>
+<td>日市收盘（港期货）</td>
+</tr>
+<tr>
+<td>18</td>
+<td>日市等待开盘（港期货）</td>
+</tr>
+<tr>
+<td>19</td>
+<td>港股盘后竞价</td>
+</tr>
+</tbody>
+</table>
+<p><strong>失败情况</strong>：</p>
+<ol>
+<li>客户端内部或网络错误 </li>
+</ol>
+<h3 id="subscribe">订阅 subscribe</h3>
+<pre><code class="python">ret_code,ret_data= quote_ctx.subscribe(stock_code, data_type, push=False) 
+</code></pre>
+
+<p><strong>功能</strong>：订阅注册需要的实时信息，指定股票和订阅的数据类型即可： </p>
+<p><strong>参数</strong>： </p>
+<p><strong>stock_code</strong>: 需要订阅的股票代码 </p>
+<p><strong>data_type</strong>: 需要订阅的数据类型</p>
+<p><strong>push</strong>: 推送选项，默认不推送 </p>
+<p><strong>返回</strong>： </p>
+<p>ret_code失败时，ret_data返回为错误描述字符串； 
+ret_code为成功，ret_data返回None 
+如果指定内容已订阅，则直接返回成功 </p>
+<p><strong>失败情况</strong>: </p>
+<ol>
+<li>
+<p>股票代码不合法，不存在 </p>
+</li>
+<li>
+<p>数据类型不合法 </p>
+</li>
+<li>
+<p>订阅额度已满，参考订阅额度表 </p>
+</li>
+<li>
+<p>客户端内部或网络错误 </p>
+</li>
+</ol>
+<h3 id="unsubscribe">退订 unsubscribe</h3>
+<pre><code class="python">ret_code,ret_data = quote_ctx.unsubscribe(stock_code, data_type, unpush=True)  
+</code></pre>
+
+<p>ret_code,ret_data = unsubscribe(stock_code, data_type, unpush=True)</p>
+<p><strong>功能</strong>：退订注册的实时信息，指定股票和订阅的数据类型即可</p>
+<p><strong>参数</strong>：</p>
+<p><strong>stock_code</strong>: 需要退订的股票代码 </p>
+<p><strong>data_type</strong>: 需要退订的数据类型 </p>
+<p><strong>返回</strong>：</p>
+<p>ret_code失败时，ret_data返回为错误描述字符串； 
+ret_code为成功，ret_data返回None 
+如果指定内容已退订，则直接返回成功 </p>
+<p><strong>失败情况</strong>:</p>
+<ol>
+<li>
+<p>股票代码不合法，不存在</p>
+</li>
+<li>
+<p>数据类型不合法</p>
+</li>
+<li>
+<p>内容订阅后不超过60s，就退订</p>
+</li>
+<li>
+<p>客户端内部或网络错误</p>
+</li>
+</ol>
+<p>​</p>
+<h3 id="query_subscription">查询订阅 query_subscription</h3>
+<pre><code class="python">ret_data = quote_ctx.query_subscription(query=0) 
+</code></pre>
+
+<p><strong>功能</strong>：查询已订阅的实时信息</p>
+<p><strong>参数</strong>： </p>
+<p><strong>query</strong>: 需要查询的类型，int, 0表示当前查询的socket,非0表示查询所有socket的订阅状态 </p>
+<p><strong>返回</strong>： </p>
+<p>字典类型，已订阅类型为主键，值为订阅该类型的股票，例如 </p>
+<pre><code class="python">{ ‘QUOTE’: [‘HK.00700’, ‘SZ.000001’]
+  ‘TICKER’: [‘HK.00700’]
+  ‘K_1M’: [‘HK.00700’]
+  #无股票订阅摆盘和其它类型分K
+}
+</code></pre>
+
+<p><strong>失败情况</strong>:</p>
+<p>客户端内部或网络错误</p>
+<h3 id="get_stock_quote-stockquotehandlerbase">获取报价   get_stock_quote 和 StockQuoteHandlerBase</h3>
+<p>对于同步请求使用<strong>get_stock_quote</strong>直接得到报价</p>
+<pre><code class="python">ret_code, ret_data = quote_ctx.get_stock_quote(code_list)
+</code></pre>
+
+<p><strong>功能</strong>：获取订阅股票报价的实时数据，有订阅要求限制 </p>
+<p><strong>参数</strong>： </p>
+<p><strong>code_list</strong>: 股票代码列表，例如，HK.00700，US.AAPL 
+传入的codelist只允许包含1种股票类型的股票。 
+必须确保code_list中的股票均订阅成功后才能够执行 </p>
+<p><strong>返回</strong>： 
+ret_code失败时，ret_data返回为错误描述字符串； 
+客户端无符合条件数据时，ret_code为成功，返回None 
+正常情况下，ret_data为一个dataframe，其中包括：</p>
+<p><strong>code</strong> ：股票代码；string</p>
+<p><strong>data_date</strong>:      日期： str</p>
+<p><strong>data_time</strong>:      时间：str</p>
+<p><strong>last_price</strong> ：     最新价格；float </p>
+<p><strong>open_price</strong>：  今日开盘价；float </p>
+<p><strong>high_price</strong>：  最高价格；float </p>
+<p><strong>low_price</strong>：       最低价格；float </p>
+<p><strong>prev_close_price</strong>：   昨收盘价格；float </p>
+<p><strong>volume</strong>： 成交数量； long </p>
+<p><strong>turnover</strong>：   成交金额；float </p>
+<p><strong>turnover_rate</strong>：  换手率；float </p>
+<p><strong>amplitude</strong> :     振幅：int</p>
+<p><strong>suspension</strong>：   是否停牌(True表示停牌)；bool</p>
+<p><strong>listing_date</strong> ：  上市日期 (yyyy-MM-dd)；string </p>
+<p><strong>失败情况</strong>: </p>
+<ol>
+<li>
+<p>codelist中股票代码不合法 </p>
+</li>
+<li>
+<p>codelist包含未对QUOTE类型订阅的股票 </p>
+</li>
+<li>
+<p>客户端内部或网络错误 </p>
+</li>
+<li>
+<p>传入的codelist包含多种股票类型 </p>
+</li>
+</ol>
+<p>对于异步推送数据需要使用<strong>StockQuoteHandlerBase</strong>以及继承它的子类处理。例如：</p>
+<pre><code class="python">    class StockQuoteTest(StockQuoteHandlerBase):
+        def on_recv_rsp(self, rsp_str):
+            ret_code, content = super(StockQuoteTest,self).on_recv_rsp(rsp_str) # 基类的on_recv_rsp方法解包返回了报价信息，格式与get_stock_quote一样
+            if ret_code != RET_OK:
+                print(&quot;StockQuoteTest: error, msg: %s&quot; % content)
+                return RET_ERROR, content
+
+            print(&quot;StockQuoteTest &quot;, content) # StockQuoteTest自己的处理逻辑
+
+            return RET_OK, content
+</code></pre>
+
+<h3 id="get_rt_ticker-tickerhandlerbase">获取逐笔   get_rt_ticker 和 TickerHandlerBase</h3>
+<p>对于同步请求使用<strong>get_rt_ticker</strong>直接得到逐笔</p>
+<pre><code class="python">ret_code, ret_data = quote_ctx.get_rt_ticker(code, num=500)
+</code></pre>
+
+<p><strong>功能</strong>： 获取指定股票的实时逐笔。取最近num个逐笔， </p>
+<p><strong>参数</strong>： </p>
+<p><strong>code</strong>: 股票代码，例如，HK.00700，US.AAPL </p>
+<p><strong>num</strong>: 最近ticker个数(有最大个数限制，最近500个） </p>
+<p><strong>返回</strong>： </p>
+<p>ret_code失败时，ret_data为错误描述字符串； 
+客户端无符合条件数据时，ret为成功，ret_data返回None 
+通常情况下，返回DataFrame，DataFrame每一行是一个逐笔记录，包含： </p>
+<p><strong>stock_code</strong> 股票代码 </p>
+<p><strong>sequence</strong> 逐笔序号 </p>
+<p><strong>time</strong> 成交时间；string </p>
+<p><strong>price</strong> 成交价格；double </p>
+<p><strong>volume</strong> 成交数量（股数）；int </p>
+<p><strong>turnover</strong> 成交金额；double </p>
+<p><strong>ticker_direction</strong> 逐笔方向；int </p>
+<p>ticker_direction:</p>
+<table>
+<thead>
+<tr>
+<th>逐笔标识</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TT_BUY</td>
+<td>外盘</td>
+</tr>
+<tr>
+<td>TT_ASK</td>
+<td>内盘</td>
+</tr>
+<tr>
+<td>TT_NEUTRAL</td>
+<td>中性盘</td>
+</tr>
+</tbody>
+</table>
+<p>返回的逐笔记录个数不一定与num指定的相等，客户端只会返回自己有的数据。 </p>
+<p><strong>失败情况</strong>： </p>
+<ol>
+<li>
+<p>code不合法 </p>
+</li>
+<li>
+<p>code是未对TICKER类型订阅的股票 </p>
+</li>
+<li>
+<p>客户端内部或网络错误 </p>
+</li>
+</ol>
+<p>对于异步推送数据需要使用<strong>TickerHandlerBase</strong>以及继承它的子类处理。例如：</p>
+<pre><code class="python">    class TickerTest(TickerHandlerBase):
+        def on_recv_rsp(self, rsp_str):
+            ret_code, content = super(TickerTest,self).on_recv_rsp(rsp_str) # 基类的on_recv_rsp方法解包返回了逐笔信息，格式与get_rt_ticker一样
+            if ret_code != RET_OK:
+                print(&quot;TickerTest: error, msg: %s&quot; % content)
+                return RET_ERROR, content
+            print(&quot;TickerTest&quot;, content)  # StockQuoteTest自己的处理逻辑
+            return RET_OK, content
+</code></pre>
+
+<h3 id="k-get_cur_kline-curklinehandlerbase">获取实时K线    get_cur_kline 和 CurKlineHandlerBase</h3>
+<p>对于同步请求使用<strong>get_cur_kline</strong>直接得到实时K线 </p>
+<pre><code class="python">ret_code, ret_data = quote_ctx.get_cur_kline(code, num, ktype='K_DAY', autype='qfq')
+</code></pre>
+
+<p><strong>功能</strong>： 实时获取指定股票最近num个K线数据，最多1000根 </p>
+<p><strong>参数</strong>： </p>
+<p><strong>code</strong> 股票代码 </p>
+<p><strong>ktype</strong> k线类型，和get_history_kline一样 </p>
+<p><strong>autype</strong>  复权类型，string；qfq-前复权，hfq-后复权，None-不复权，默认为qfq </p>
+<p>对于实时K线数据最多取最近1000根 </p>
+<p><strong>返回</strong>： </p>
+<p>ret_code失败时，ret_data为错误描述字符串； 
+客户端无符合条件数据时，ret为成功，ret_data返回None 
+通常情况下，返回DataFrame，DataFrame内容和get_history_kline一样 </p>
+<p><strong>失败情况</strong>：</p>
+<ol>
+<li>
+<p>code不合法 </p>
+</li>
+<li>
+<p>该股票未对指定K线类型订阅 </p>
+</li>
+<li>
+<p>客户端内部或网络错误 </p>
+</li>
+</ol>
+<p>对于异步推送数据需要使用<strong>CurKlineHandlerBase</strong>以及继承它的子类处理。例如：</p>
+<pre><code class="python">    class CurKlineTest(CurKlineHandlerBase):
+        def on_recv_rsp(self, rsp_str):
+            ret_code, content = super(CurKlineTest,self).on_recv_rsp(rsp_str) # 基类的on_recv_rsp方法解包返回了实时K线信息，格式除了与get_cur_kline所有字段外，还包含K线类型k_type
+            if ret_code != RET_OK:
+                print(&quot;CurKlineTest: error, msg: %s&quot; % content)
+                return RET_ERROR, content
+            print(&quot;CurKlineTest&quot;, content) # CurKlineTest自己的处理逻辑
+            return RET_OK, content            
+</code></pre>
+
+<h3 id="get_order_book-orderbookhandlerbase">获取摆盘   get_order_book 和 OrderBookHandlerBase</h3>
+<p>对于同步请求使用<strong>get_order_book</strong>直接得到摆盘 </p>
+<pre><code class="python">ret_code, ret_data = quote_ctx.get_order_book(code) 
+</code></pre>
+
+<p><strong>功能</strong>：获取实时摆盘数据 </p>
+<p><strong>参数</strong>： </p>
+<p><strong>code</strong>: 股票代码，例如，HK.00700，US.AAPL </p>
+<p><strong>返回</strong>： 
+ret_code失败时，ret_data为错误描述字符串； 
+客户端无符合条件数据时，ret为成功，ret_data返回None 
+通常情况下，返回字典 </p>
+<pre><code class="python">{‘stock_code’: stock_code
+ ‘Ask’:[ (ask_price1, ask_volume1，order_num), (ask_price2, ask_volume2, order_num),…]
+‘Bid’: [ (bid_price1, bid_volume1, order_num), (bid_price2, bid_volume2, order_num),…]
+}
+</code></pre>
+
+<p><strong>失败情况</strong>：</p>
+<ol>
+<li>
+<p>code不合法 </p>
+</li>
+<li>
+<p>该股票未对ORDER_BOOK类型订阅 </p>
+</li>
+<li>
+<p>客户端内部或网络错误 </p>
+</li>
+</ol>
+<p>对于异步推送数据需要使用<strong>OrderBookHandlerBase</strong>以及继承它的子类处理。例如：</p>
+<pre><code class="python">
+    class OrderBookTest(OrderBookHandlerBase):
+        def on_recv_rsp(self, rsp_str):
+            ret_code, content = super(OrderBookTest,self).on_recv_rsp(rsp_str) # 基类的on_recv_rsp方法解包返回摆盘信息，格式与get_order_book一样
+            if ret_code != RET_OK:
+                print(&quot;OrderBookTest: error, msg: %s&quot; % content)
+                return RET_ERROR, content
+            print(&quot;OrderBookTest&quot;, content) # OrderBookTest自己的处理逻辑
+            return RET_OK, content            
+
+</code></pre>
+
+<h3 id="get_rt_data-rtdatahandlerbase">获取分时数据   get_rt_data 和 RTDataHandlerBase</h3>
+<p>对于同步请求使用<strong>get_rt_data</strong>直接得到分时数据 </p>
+<pre><code class="python">ret_code, ret_data = quote_ctx.get_rt_data(code) 
+</code></pre>
+
+<p><strong>功能</strong>：获取实时分时数据 </p>
+<p><strong>参数</strong>： </p>
+<p><strong>code</strong>: 股票代码，例如，HK.00700，US.AAPL </p>
+<p><strong>返回</strong>： </p>
+<p>ret_code失败时，ret_data为错误描述字符串； 
+客户端无符合条件数据时，ret为成功，ret_data返回None 
+通常情况下，返回 </p>
+<p><strong>time</strong> 时间 </p>
+<p><strong>data_status</strong> 数据状态 </p>
+<p><strong>opened_mins</strong>  开盘多少分钟 </p>
+<p><strong>cur_price</strong> 当前价格 </p>
+<p><strong>last_close</strong>  昨天收盘的价格 </p>
+<p><strong>avg_price</strong> 平均价格 </p>
+<p><strong>volume</strong> 成交量 </p>
+<p><strong>turnover</strong>  成交额 </p>
+<p><strong>失败情况</strong>： </p>
+<ol>
+<li>
+<p>code不合法 </p>
+</li>
+<li>
+<p>该股票未对RT_DATA类型订阅 </p>
+</li>
+<li>
+<p>客户端内部或网络错误 </p>
+</li>
+</ol>
+<p>对于异步推送数据需要使用<strong>RTDataHandlerBase</strong>以及继承它的子类处理。例如：</p>
+<pre><code class="python">
+    class RTDataTest(RTDataHandlerBase):
+        def on_recv_rsp(self, rsp_str):
+            ret_code, content = super(RTDataTest,self).on_recv_rsp(rsp_str) # 基类的on_recv_rsp方法解包返回分时数据，格式与get_rt_data一样
+            if ret_code != RET_OK:
+                print(&quot;RTDataTest: error, msg: %s&quot; % content)
+                return RET_ERROR, content
+            print(&quot;RTDataTest&quot;, content) 
+            return RET_OK, content            
+
+</code></pre>
+
+<h3 id="get_broker_queue-brokerhandlerbase">获取经纪队列   get_broker_queue 和 BrokerHandlerBase</h3>
+<p>对于同步请求使用<strong>get_broker_queue</strong>直接得到经纪队列 </p>
+<pre><code class="python">ret_code, ret_data = quote_ctx.get_broker_queue(code)  
+</code></pre>
+
+<p><strong>功能</strong>：获取实时经纪队列 </p>
+<p><strong>参数</strong>： </p>
+<p><strong>code</strong>: 股票代码，例如，HK.00700，US.AAPL </p>
+<p><strong>返回</strong>：</p>
+<p>ret_code失败时，ret_data为错误描述字符串； 
+客户端无符合条件数据时，ret为成功，ret_data返回None 
+通常情况下，返回 
+bid_data是买盘的数据，包括： </p>
+<p><strong>bid_broker_id</strong> 经纪卖盘id </p>
+<p><strong>bid_broker_name</strong> 经纪卖盘名称 </p>
+<p><strong>bid_broker_pos</strong> 经纪档位 </p>
+<p>ask_data是卖盘的数据 </p>
+<p><strong>ask_broker_id</strong> 经纪买盘id </p>
+<p><strong>ask_broker_name</strong>  经纪买盘名称 </p>
+<p><strong>ask_broker_pos</strong> 经纪档位 </p>
+<p><strong>失败情况</strong>： </p>
+<ol>
+<li>
+<p>code不合法 </p>
+</li>
+<li>
+<p>该股票未对BROKER类型订阅 </p>
+</li>
+<li>
+<p>客户端内部或网络错误 </p>
+</li>
+</ol>
+<p>对于异步推送数据需要使用<strong>BrokerHandlerBase</strong>以及继承它的子类处理。例如：</p>
+<pre><code class="python">
+    class BrokerTest(BrokerHandlerBase):
+        def on_recv_rsp(self, rsp_str):
+            ret_code, ask_content, bid_content = super(BrokerTest, self).on_recv_rsp(rsp_str) # 基类的on_recv_rsp方法解包返回经纪队列，格式与get_broker_queue一样
+            if ret_code != RET_OK:
+                print(&quot;BrokerTest: error, msg: %s %s &quot; % ask_content % bid_content)
+                return RET_ERROR, ask_content, bid_content
+            print(&quot;BrokerTest&quot;, ask_content, bid_content) 
+            return RET_OK, ask_content, bid_content            
+
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../Trade_API_Python_Doc/" class="btn btn-neutral float-right" title="交易API">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../Hist_Kline_Download_Intro/" class="btn btn-neutral" title="历史K线数据下载指引"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../Hist_Kline_Download_Intro/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../Trade_API_Python_Doc/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../../js/theme.js"></script>
+
+</body>
+</html>

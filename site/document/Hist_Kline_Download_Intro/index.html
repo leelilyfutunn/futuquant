@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>历史K线数据下载指引 - futuquant</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "\u5386\u53f2K\u7ebf\u6570\u636e\u4e0b\u8f7d\u6307\u5f15";
+    var mkdocs_page_input_path = "document\\Hist_Kline_Download_Intro.md";
+    var mkdocs_page_url = "/document/Hist_Kline_Download_Intro/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> futuquant</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../Futunn_API_Intro/">富途牛牛行情交易API入门指引</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">历史K线数据下载指引</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#_1">程序自动下载</a></li>
+    
+
+    <li class="toctree-l2"><a href="#_2">历史数据导入</a></li>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../Market_API_Python_Doc/">行情数据API</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../Trade_API_Python_Doc/">交易API</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../json/PLS_API_Intro/">PLS接口</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../Q%26A/">Q&A</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">futuquant</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>历史K线数据下载指引</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p>历史K线提供了两种下载方式，可自行任选其一即可</p>
+<h3 id="_1">程序自动下载</h3>
+<ol>
+<li>
+<p>下载安装。在QQ群108534288群文件中下载API专用版本，安装。 
+  <img alt="image" src="https://github.com/FutunnOpen/OpenQuant/raw/master/Resources/Download.png" /></p>
+</li>
+<li>
+<p>历史数据存放。有默认路径存放和自定义存放两种方式。选择一种即可。<br/>    如果选择默认历史数据的存放目录，不需要做任何更改，直接到第3步。（默认存放在%UserProfile%\AppData\Roaming\FTNN\1.0\Common\HistData）   如果选择自定义目录，那么需要修改配置文件。修改配置文件方法如下：打开富途牛牛的安装目录（这里以默认安装路径为例），C:\Program Files (x86)\FTNN\plugin，以记事本方式打开这个文件夹下的ftplugin.ini，如果默认的下载市场，类型符合个人需求，就不需要改动。如果还有额外的需求，市场类型，K线类型都可以根据自己需要修改。其中分K提供最近三个月的，日K等提供2000年以后的。<br/>
+   <img alt="image" src="https://github.com/FutunnOpen/OpenQuant/raw/master/Resources/HistDataConfig.png" /> 
+   设置自定义历史数据存放位置，将hist_data_dir=D:\ft_hist_data这句话的句首分号去掉即可。新路径在重启富途牛牛之后才会生效。</p>
+</li>
+<li>
+<p>历史数据下载。先开启富途牛牛，再打开富途牛牛的安装目录（这里以默认安装路径为例）C:\Program Files (x86)\FTNN\FTHistData.exe，运行FTHistData.exe。<br/>   如果在第2步中选择的是默认存放目录，那么下载的历史数据存放在%UserProfile%\AppData\Roaming\FTNN\1.0\Common\HistData。 <br/>
+如果在第2步中选择的是自定义目录，那么下载的历史数据存放在自定义目录D:\ft_hist_data。无论哪个存放目录都会有个更新历史数据的界面提示更新进度。更新过程中最小化界面即可。 </p>
+</li>
+<li>
+<p>历史数据更新。支持增量更新，每天运行FTHistData.exe，就会自动下载尚未更新的数据了。 </p>
+</li>
+</ol>
+<hr />
+<h3 id="_2">历史数据导入</h3>
+<ol>
+<li>
+<p>在<a href="http://pan.baidu.com/s/1gf7SvJX">http://pan.baidu.com/s/1gf7SvJX</a>中下载历史数据导入包，提供了三大市场的历史数据，可以全部下载，也可以根据个人需求相应下载。 
+   <img alt="image" src="https://github.com/FutunnOpen/OpenQuant/raw/master/Resources/HistDataDownload.png" /></p>
+</li>
+<li>
+<p>将上述下载好的数据导入包放在默认目录或者自定义目录下。 <br/>
+   如果放在默认路径下，不需要修改配置文件，找到目录%UserProfile%\AppData\Roaming\FTNN\1.0\Common\HistData，新建个文件夹ImportDataDir，把数据放入即可。 <br/>
+   如果放在自定义目录下，需要修改配置文件，修改配置文件方式如下：打开富途牛牛安装目录（这里以默认安装路径为例），C:\Program Files (x86)\FTNN\plugin，以记事本方式打开这个文件夹下的ftplugin.ini，将hist_data_dir=D:\ft_hist_data这句话的句首分号去掉，设置自定义历史数据存放位置。 
+   <img alt="image" src="https://github.com/FutunnOpen/OpenQuant/raw/master/Resources/HistDataImport.png" /><br/>
+   把下载好的历史数据导入包，放入自定义历史数据存放目录D:\ft_hist_data\下，新建个文件夹ImportDataDir（有这个文件夹的话就不用新建了），把数据放入即可。 </p>
+</li>
+<li>
+<p>先重启富途牛牛，在打开富途牛牛的安装目录C:\Program Files (x86)\FTNN，找到FTHistData.exe并运行，即可实现历史数据的导入。在更新历史数据界面会提示导入数据进度，提示更新完成表示导入数据已成功。 </p>
+</li>
+<li>
+<p>新数据在上述链接<a href="http://pan.baidu.com/s/1gf7SvJX">http://pan.baidu.com/s/1gf7SvJX</a>中获得，重复步骤1，2，3即可（只有第一次导入在自定义目录中才需要修改配置文件，以后导入数据不需要重复修改配置文件）。 </p>
+</li>
+</ol>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../Market_API_Python_Doc/" class="btn btn-neutral float-right" title="行情数据API">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../Futunn_API_Intro/" class="btn btn-neutral" title="富途牛牛行情交易API入门指引"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../Futunn_API_Intro/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../Market_API_Python_Doc/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../../js/theme.js"></script>
+
+</body>
+</html>

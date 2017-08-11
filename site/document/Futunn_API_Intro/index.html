@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>富途牛牛行情交易API入门指引 - futuquant</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "\u5bcc\u9014\u725b\u725b\u884c\u60c5\u4ea4\u6613API\u5165\u95e8\u6307\u5f15";
+    var mkdocs_page_input_path = "document\\Futunn_API_Intro.md";
+    var mkdocs_page_url = "/document/Futunn_API_Intro/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> futuquant</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">富途牛牛行情交易API入门指引</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#_1">准备工作</a></li>
+    
+
+    <li class="toctree-l2"><a href="#_2">安装部署</a></li>
+    
+
+    <li class="toctree-l2"><a href="#_3">使用</a></li>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../Hist_Kline_Download_Intro/">历史K线数据下载指引</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../Market_API_Python_Doc/">行情数据API</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../Trade_API_Python_Doc/">交易API</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../json/PLS_API_Intro/">PLS接口</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../Q%26A/">Q&A</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">futuquant</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>富途牛牛行情交易API入门指引</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h3 id="_1">准备工作</h3>
+<ol>
+<li>准备一台Windows 32bit 或者64bit 的电脑（win7/8/10）  </li>
+<li>下载富途牛牛客户端，需要在QQ群108534288群文件中下载专用版本<img alt="image" src="https://github.com/FutunnOpen/OpenQuant/raw/master/Resources/Download.png" />  </li>
+<li>下载Anaconda python 3和 Pycharm 2016.3.2，Anaconda python 是Python科学技术包的合集，提供了很多用于科学计算的模块，Pycharm是一款Python的IDE，用于程序开发，可以在QQ群108534288群文件中下载python接入开发相关工具，可选择32位或者64位下载。如果已经安装了Anaconda python2，也可以使用。  </li>
+<li>在GITHUB上下载FutunnOpen项目代码并解压<a href="https://github.com/FutunnOpen/OpenQuant">https://github.com/FutunnOpen/OpenQuant</a></li>
+</ol>
+<hr />
+<h3 id="_2">安装部署</h3>
+<ol>
+<li>
+<p>安装富途牛牛客户端，注册并登录，可以在客户端直接注册或者在网站注册，网站注册链接<a href="https://passport.futu5.com/?target=http%3A%2F%2Fwww.futunn.com%2F#reg">https://passport.futu5.com/?target=http%3A%2F%2Fwww.futunn.com%2F#reg</a></p>
+</li>
+<li>
+<p>安装Anaconda python 3, Pycharm 2016.3.2，请尽量先安装Anaconda python再安装Pycharm，如果不是这个顺序那么还需要在Pycharm中手动添加Anaconda python的路径</p>
+</li>
+<li>
+<p>在操作系统的命令行模式中输入netstat -nat | findstr 11111，查看网络连接，看状态是否为LISTEN，不是的话请检查是否开启了富途牛牛客户端</p>
+</li>
+<li>
+<p>在不安装富途牛牛客户端的情况下，还可以选择无需客户端的仅体验版本，在Pycharm中运行项目代码中OpenQuant\OpenInterface\Python下的sample.py，把sample.py中host='127.0.0.1'的值改为119.29.141.202，即可利用云端进行测试，运行。</p>
+</li>
+</ol>
+<hr />
+<h3 id="_3">使用</h3>
+<ol>
+<li>
+<p>在开启了富途牛牛客户端或者利用云端获取数据的情况下，在Pycharm中运行项目代码中OpenQuant\OpenInterface\Python下的sample.py，即可进行调试，运行。</p>
+</li>
+<li>
+<p>注册并登录富途牛牛即可免费获取港股实时行情，有效期至10月底</p>
+</li>
+<li>
+<p>行情和交易接口文档可在如下地址获取，</p>
+</li>
+</ol>
+<p><a href="https://github.com/FutunnOpen/OpenQuant/tree/master/OpenInterface/Python">https://github.com/FutunnOpen/OpenQuant/tree/master/OpenInterface/Python</a></p>
+<p>​      </p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../Hist_Kline_Download_Intro/" class="btn btn-neutral float-right" title="历史K线数据下载指引">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../.." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../.." style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../Hist_Kline_Download_Intro/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../../js/theme.js"></script>
+
+</body>
+</html>

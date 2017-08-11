@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+    
+    <url>
+     <loc>/</loc>
+     <lastmod>2017-08-11</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/document/Futunn_API_Intro/</loc>
+     <lastmod>2017-08-11</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/document/Hist_Kline_Download_Intro/</loc>
+     <lastmod>2017-08-11</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/document/Market_API_Python_Doc/</loc>
+     <lastmod>2017-08-11</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/document/Trade_API_Python_Doc/</loc>
+     <lastmod>2017-08-11</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/json/PLS_API_Intro/</loc>
+     <lastmod>2017-08-11</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/Q&A/</loc>
+     <lastmod>2017-08-11</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+</urlset>
