@@ -1,10 +1,13 @@
 ﻿# -*- coding: utf-8 -*-
+"""
+    Market quote and trade context setting
+"""
 
 from .quote_query import *
 from .trade_query import *
 from multiprocessing import Queue
 from threading import RLock, Thread
-import socket
+# import socket
 import select
 import sys
 import pandas as pd
@@ -17,20 +20,23 @@ from struct import pack
 
 
 class RspHandlerBase(object):
-    """call-back function base class"""
+    """callback function base class"""
     def __init__(self):
         pass
 
     def on_recv_rsp(self, rsp_content):
+        """receive response callback function"""
         return 0, None
 
     def on_error(self, error_str):
+        """error callback function"""
         pass
 
 
 class StockQuoteHandlerBase(RspHandlerBase):
-
+    """Base class for handle stock quote"""
     def on_recv_rsp(self, rsp_str):
+        """receive response callback function"""
         ret_code, msg, quote_list = StockQuoteQuery.unpack_rsp(rsp_str)
         if ret_code == RET_ERROR:
             return ret_code, msg
@@ -45,11 +51,14 @@ class StockQuoteHandlerBase(RspHandlerBase):
             return RET_OK, quote_frame_table
 
     def on_error(self, error_str):
+        """error callback function"""
         return error_str
 
 
 class OrderBookHandlerBase(RspHandlerBase):
+    """Base class for handling order book data"""
     def on_recv_rsp(self, rsp_str):
+        """receive response callback function"""
         ret_code, msg, order_book = OrderBookQuery.unpack_rsp(rsp_str)
         if ret_code == RET_ERROR:
             return ret_code, msg
@@ -57,12 +66,14 @@ class OrderBookHandlerBase(RspHandlerBase):
             return ret_code, order_book
 
     def on_error(self, error_str):
+        """error callback function"""
         return error_str
 
 
 class CurKlineHandlerBase(RspHandlerBase):
-
+    """Base class for handling current Kline data"""
     def on_recv_rsp(self, rsp_str):
+        """receive response callback function"""
         ret_code, msg, kline_list = CurKlineQuery.unpack_rsp(rsp_str)
         if ret_code == RET_ERROR:
             return ret_code, msg
@@ -73,12 +84,14 @@ class CurKlineHandlerBase(RspHandlerBase):
             return RET_OK, kline_frame_table
 
     def on_error(self, error_str):
+        """error callback function"""
         return error_str
 
 
 class TickerHandlerBase(RspHandlerBase):
-
+    """Base class for handling ticker data"""
     def on_recv_rsp(self, rsp_str):
+        """receive response callback function"""
         ret_code, msg, ticker_list = TickerQuery.unpack_rsp(rsp_str)
         if ret_code == RET_ERROR:
             return ret_code, msg
@@ -90,12 +103,14 @@ class TickerHandlerBase(RspHandlerBase):
             return RET_OK, ticker_frame_table
 
     def on_error(self, error_str):
+        """error callback function"""
         return error_str
 
 
 class RTDataHandlerBase(RspHandlerBase):
-
+    """Base class for handling real-time data"""
     def on_recv_rsp(self, rsp_str):
+        """receive response callback function"""
         ret_code, msg, rt_data_list = RtDataQuery.unpack_rsp(rsp_str)
         if ret_code == RET_ERROR:
             return ret_code, msg
@@ -108,11 +123,14 @@ class RTDataHandlerBase(RspHandlerBase):
             return RET_OK, rt_data_table
 
     def on_error(self, error_str):
+        """error callback function"""
         return error_str
 
 
 class BrokerHandlerBase(RspHandlerBase):
+    """Base class for handling broker"""
     def on_recv_rsp(self, rsp_str):
+        """receive response callback function"""
         ret_code, bid_content, ask_content = BrokerQueueQuery.unpack_rsp(rsp_str)
         if ret_code == RET_ERROR:
             return ret_code, bid_content, ask_content
@@ -125,10 +143,12 @@ class BrokerHandlerBase(RspHandlerBase):
             return RET_OK, [bid_frame_table, ask_frame_table]
 
     def on_error(self, error_str):
+        """error callback function"""
         return error_str
 
 
 class HandlerContext:
+    """Handle Context"""
     def __init__(self):
         self._default_handler = RspHandlerBase()
         self._handler_table = {"1030": {"type": StockQuoteHandlerBase, "obj": StockQuoteHandlerBase()},
@@ -156,6 +176,7 @@ class HandlerContext:
             return RET_ERROR
 
     def recv_func(self, rsp_str):
+        """receive response callback function"""
         ret, msg, rsp = extract_pls_rsp(rsp_str)
         if ret != RET_OK:
             error_str = msg + rsp_str
@@ -173,7 +194,9 @@ class HandlerContext:
             error_str = result
             handler.on_error(error_str)
 
-    def error_func(self, err_str):
+    @staticmethod
+    def error_func(err_str):
+        """error callback function"""
         print(err_str)
 
 
@@ -181,14 +204,14 @@ class _SyncNetworkQueryCtx:
     """
     Network query context manages connection between python program and FUTU client program.
 
-    Short (non-persistent) connection can be created by setting long_conn prarameter False, which suggests that
+    Short (non-persistent) connection can be created by setting long_conn parameter False, which suggests that
     TCP connection is closed once a query session finished
 
-    Long (persistent) connection can be created by setting long_conn prarameter True,  which suggests that TCP
+    Long (persistent) connection can be created by setting long_conn parameter True, which suggests that TCP
     connection is persisted after a query session finished, waiting for next query.
 
     """
-    def __init__(self, host, port, long_conn=True, connected_handler = None):
+    def __init__(self, host, port, long_conn=True, connected_handler=None):
         self.s = None
         self.__host = host
         self.__port = port
@@ -198,11 +221,13 @@ class _SyncNetworkQueryCtx:
         self._is_loop_connecting = False
 
     def close_socket(self):
+        """close socket"""
         self._socket_lock.acquire()
         self._force_close_session()
         self._socket_lock.release()
 
     def is_sock_ok(self, timeout_select):
+        """check if socket is OK"""
         self._socket_lock.acquire()
         try:
             ret = self._is_socket_ok(timeout_select)
@@ -211,14 +236,15 @@ class _SyncNetworkQueryCtx:
         return ret
 
     def _is_socket_ok(self, timeout_select):
-        if self.s == None:
+        if not self.s:
             return False
         _, _, sel_except = select.select([self.s], [], [], timeout_select)
         if self.s in sel_except:
             return False
-        return  True
+        return True
 
     def reconnect(self):
+        """reconnect"""
         self._socket_create_and_loop_connect()
 
     def network_query(self, req_str):
@@ -233,7 +259,7 @@ class _SyncNetworkQueryCtx:
             if ret != RET_OK:
                 return ret, msg, None
 
-            rsp_str = ''
+            # rsp_str = ''
             s_buf = str2binary(req_str)
             s_cnt = self.s.send(s_buf)
 
@@ -245,16 +271,16 @@ class _SyncNetworkQueryCtx:
                     rsp_buf += recv_buf
                     if recv_buf == b'':
                         raise Exception("_SyncNetworkQueryCtx : remote server close")
-                except Exception:
+                except ConnectionError:
                     err = sys.exc_info()[1]
                     error_str = ERROR_STR_PREFIX + str(
-                        err) + ' when recving after sending %s bytes. For req: ' % s_cnt + req_str
+                        err) + ' when receiving after sending %s bytes. For req: ' % s_cnt + req_str
                     self._force_close_session()
                     return RET_ERROR, error_str, None
 
             rsp_str = binary2str(rsp_buf)
             self._close_session()
-        except Exception:
+        except ConnectionError:
             err = sys.exc_info()[1]
             error_str = ERROR_STR_PREFIX + str(err) + ' when sending. For req: ' + req_str
 
@@ -266,9 +292,7 @@ class _SyncNetworkQueryCtx:
         return RET_OK, "", rsp_str
 
     def _socket_create_and_loop_connect(self):
-        '''
-        :return: (err_code, err_msg)
-        '''
+
         self._socket_lock.acquire()
         is_socket_lock = True
 
@@ -284,13 +308,13 @@ class _SyncNetworkQueryCtx:
                 if not is_socket_lock:
                     is_socket_lock = True
                     self._socket_lock.acquire()
-                s = sock.socket(sock.AF_INET, sock.SOCK_STREAM)
+                s = sock.socket()
                 s.setsockopt(sock.SOL_SOCKET, sock.SO_REUSEADDR, 0)
                 s.setsockopt(sock.SOL_SOCKET, sock.SO_LINGER, pack("ii", 0, 0))
                 s.settimeout(10)
                 self.s = s
                 self.s.connect((self.__host, self.__port))
-            except Exception:
+            except ConnectionError:
                 err = sys.exc_info()[1]
                 err_msg = ERROR_STR_PREFIX + str(err)
                 print("socket connect err:{}".format(err_msg))
@@ -301,7 +325,7 @@ class _SyncNetworkQueryCtx:
                 is_socket_lock = False
                 self._socket_lock.release()
 
-                sock_ok, is_retry = self._connected_handler._notify_sync_socket_connected(self)
+                sock_ok, is_retry = self._connected_handler.notify_sync_socket_connected(self)
                 if not sock_ok:
                     self._force_close_session()
                     if is_retry:
@@ -314,7 +338,7 @@ class _SyncNetworkQueryCtx:
                     break
         self._is_loop_connecting = False
         if is_socket_lock:
-            is_socket_lock = False
+            # is_socket_lock = False
             self._socket_lock.release()
 
         return RET_OK, ''
@@ -348,7 +372,7 @@ class _SyncNetworkQueryCtx:
 
 class _AsyncNetworkManager(asyncore.dispatcher_with_send):
 
-    def __init__(self, host, port, handler_ctx, close_handler = None):
+    def __init__(self, host, port, handler_ctx, close_handler=None):
         self.__host = host
         self.__port = port
         self.__close_handler = close_handler
@@ -361,9 +385,11 @@ class _AsyncNetworkManager(asyncore.dispatcher_with_send):
         self.handler_ctx = handler_ctx
 
     def reconnect(self):
+        """reconnect"""
         self._socket_create_and_connect()
 
     def close_socket(self):
+        """close socket"""
         self.close()
 
     def handle_read(self):
@@ -387,13 +413,13 @@ class _AsyncNetworkManager(asyncore.dispatcher_with_send):
 
                 self.handler_ctx.recv_func(rsp_str)
                 loc = self.rsp_buf.find(delimiter)
-        except Exception:
+        except ConnectionError:
             err = sys.exc_info()[1]
             self.handler_ctx.error_func(str(err))
             return
 
     def network_query(self, req_str):
-
+        """query network status"""
         s_buf = str2binary(req_str)
         self.send(s_buf)
 
@@ -401,14 +427,15 @@ class _AsyncNetworkManager(asyncore.dispatcher_with_send):
         self.close()
 
     def handle_close(self):
-      if self.__close_handler is not None:
-          self.__close_handler._notify_async_socket_close(self)
+        """handle close"""
+        if self.__close_handler is not None:
+            self.__close_handler.notify_async_socket_close(self)
 
     def _socket_create_and_connect(self):
         if self.socket is not None:
             self.close()
         if self.__host is not None and self.__port is not None:
-            self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.create_socket()
             self.connect((self.__host, self.__port))
 
 
@@ -430,6 +457,7 @@ def _net_proc(async_ctx, req_queue):
 
 
 class OpenContextBase(object):
+    """Base class for set context"""
     metaclass__ = ABCMeta
 
     def __init__(self, host, port, sync_enable, async_enable):
@@ -452,7 +480,7 @@ class OpenContextBase(object):
         self._sync_query_lock = RLock()
 
         if not self.__sync_socket_enable and not self.__async_socket_enable:
-            raise Exception('you should sepcify at least one socket type to create !')
+            raise Exception('you should specify at least one socket type to create !')
 
         self._socket_reconnect_and_wait_ready()
 
@@ -462,7 +490,7 @@ class OpenContextBase(object):
     @abstractmethod
     def close(self):
         """
-        to call close old obj before loop create new, otherwise socket will encounter erro 10053 or more!
+        to call close old obj before loop create new, otherwise socket will encounter error 10053 or more!
         """
         self._close()
 
@@ -482,7 +510,7 @@ class OpenContextBase(object):
         if self._thread_check_sync_sock is not None:
             self._thread_check_sync_sock.join(timeout=10)
             self._thread_check_sync_sock = None
-            assert  self._thread_is_exit
+            assert self._thread_is_exit
 
         if self._sync_net_ctx is not None:
             self._sync_net_ctx.close_socket()
@@ -577,7 +605,7 @@ class OpenContextBase(object):
         send_req = self._send_sync_req
 
         def sync_query_processor(**kargs):
-
+            """sync query processor"""
             msg_obj_del = "the object may have been deleted!"
             if self._is_obj_closed or self._sync_query_lock is None:
                 return RET_ERROR, msg_obj_del, None
@@ -602,7 +630,7 @@ class OpenContextBase(object):
                 try:
                     if self._sync_query_lock:
                         self._sync_query_lock.release()
-                except Exception:
+                except ConnectionError:
                     err = sys.exc_info()[1]
                     print(err)
         return sync_query_processor
@@ -627,10 +655,10 @@ class OpenContextBase(object):
             return RET_ERROR, error_str
 
     def _socket_reconnect_and_wait_ready(self):
-        '''
+        """
         sync_socket & async_socket recreate
         :return: None
-        '''
+        """
         if self._is_socket_reconnecting or self._is_obj_closed or self._sync_query_lock is None:
             return
 
@@ -653,7 +681,8 @@ class OpenContextBase(object):
             if self.__sync_socket_enable:
                 self._thread_check_sync_sock = None
                 if self._sync_net_ctx is None:
-                    self._sync_net_ctx = _SyncNetworkQueryCtx(self.__host, self.__port, long_conn=True, connected_handler=self)
+                    self._sync_net_ctx = _SyncNetworkQueryCtx(self.__host, self.__port,
+                                                              long_conn=True, connected_handler=self)
                 self._sync_net_ctx.reconnect()
 
             # notify reconnected
@@ -669,15 +698,15 @@ class OpenContextBase(object):
                 self._is_socket_reconnecting = False
                 if self._sync_query_lock:
                     self._sync_query_lock.release()
-            except Exception:
+            except ConnectionError:
                 err = sys.exc_info()[1]
                 print(err)
 
-    def _notify_sync_socket_connected(self, sync_ctxt):
-        '''
+    def notify_sync_socket_connected(self, sync_ctxt):
+        """
         :param sync_ctxt:
         :return: (is_socket_ok[bool], is_to_retry_connect[bool])
-        '''
+        """
         if self._is_obj_closed or self._sync_net_ctx is None or self._sync_net_ctx is not sync_ctxt:
             return False, False
 
@@ -687,19 +716,19 @@ class OpenContextBase(object):
             is_ready = int(state_dict['Quote_Logined']) != 0 and int(state_dict['Trade_Logined']) != 0
         return is_ready, True
 
-    def _notify_async_socket_close(self, async_ctx):
-        '''
+    def notify_async_socket_close(self, async_ctx):
+        """
          AsyncNetworkManager onclose callback
-        '''
+        """
         if self._is_obj_closed or self._async_ctx is None or async_ctx is not self._async_ctx:
             return
         # auto reconnect
         self._socket_reconnect_and_wait_ready()
 
     def _thread_check_sync_sock_fun(self):
-        '''
+        """
         thread fun : timer to check socket state
-        '''
+        """
         thread_handle = self._thread_check_sync_sock
         while True:
             if self._is_obj_closed or self._thread_check_sync_sock is not thread_handle:
@@ -727,29 +756,31 @@ class OpenContextBase(object):
 
 
 class OpenQuoteContext(OpenContextBase):
-    def __init__(self, host = '127.0.0.1', port = 11111):
+    """Class for set context of stock quote"""
+    def __init__(self, host='127.0.0.1', port=11111):
         self._ctx_subscribe = set()
         super(OpenQuoteContext, self).__init__(host, port, True, True)
 
     def close(self):
-        '''
+        """
         to call close old obj before loop create new, otherwise socket will encounter erro 10053 or more!
-        '''
+        """
         super(OpenQuoteContext, self).close()
 
     def on_api_socket_reconnected(self):
+        """for API socket reconnected"""
         # auto subscribe
         set_sub = self._ctx_subscribe.copy()
         for (stock_code, data_type, push) in set_sub:
             for i in range(3):
-                ret, _= self.subscribe(stock_code, data_type, push)
+                ret, _ = self.subscribe(stock_code, data_type, push)
                 if ret == 0:
                     break
                 else:
                     sleep(1)
 
     def get_trading_days(self, market, start_date=None, end_date=None):
-
+        """get the trading days"""
         if market is None or isinstance(market, str) is False:
             error_str = ERROR_STR_PREFIX + "the type of market param is wrong"
             return RET_ERROR, error_str
@@ -775,6 +806,7 @@ class OpenQuoteContext(OpenContextBase):
         return RET_OK, trade_day_list
 
     def get_stock_basicinfo(self, market, stock_type='STOCK'):
+        """get the basic information of stock"""
         param_table = {'market': market, 'stock_type': stock_type}
         for x in param_table:
             param = param_table[x]
@@ -797,7 +829,7 @@ class OpenQuoteContext(OpenContextBase):
         return RET_OK, basic_info_table
 
     def get_history_kline(self, code, start=None, end=None, ktype='K_DAY', autype='qfq'):
-
+        """get the historic Kline data"""
         if start is not None and isinstance(start, str) is False:
             error_str = ERROR_STR_PREFIX + "the type of start param is wrong"
             return RET_ERROR, error_str
@@ -830,7 +862,7 @@ class OpenQuoteContext(OpenContextBase):
         return RET_OK, kline_frame_table
 
     def get_autype_list(self, code_list):
-
+        """get the autype list"""
         if code_list is None or isinstance(code_list, list) is False:
             error_str = ERROR_STR_PREFIX + "the type of code_list param is wrong"
             return RET_ERROR, error_str
@@ -867,6 +899,7 @@ class OpenQuoteContext(OpenContextBase):
         return RET_OK, exr_frame_table
 
     def get_market_snapshot(self, code_list):
+        """get teh market snapshot"""
         if code_list is None or isinstance(code_list, list) is False:
             error_str = ERROR_STR_PREFIX + "the type of code_list param is wrong"
             return RET_ERROR, error_str
@@ -891,7 +924,7 @@ class OpenQuoteContext(OpenContextBase):
                     'wrt_conversion_ratio', 'wrt_type', 'wrt_strike_price',
                     'wrt_maturity_date', 'wrt_end_trade', 'wrt_code',
                     'wrt_recovery_price', 'wrt_street_vol', 'wrt_issue_vol',
-                    'wrt_street_ratio', 'wrt_delta', 'wrt_implied_volatility', 'wrt_premium','lot_size'
+                    'wrt_street_ratio', 'wrt_delta', 'wrt_implied_volatility', 'wrt_premium', 'lot_size'
                     ]
 
         snapshot_frame_table = pd.DataFrame(snapshot_list, columns=col_list)
@@ -899,6 +932,7 @@ class OpenQuoteContext(OpenContextBase):
         return RET_OK, snapshot_frame_table
 
     def get_rt_data(self, code):
+        """get real-time data"""
         if code is None or isinstance(code, str) is False:
             error_str = ERROR_STR_PREFIX + "the type of param in code_list is wrong"
             return RET_ERROR, error_str
@@ -919,6 +953,7 @@ class OpenQuoteContext(OpenContextBase):
         return RET_OK, rt_data_table
 
     def get_plate_list(self, market, plate_class):
+        """get stock list of the given plate"""
         param_table = {'market': market, 'plate_class': plate_class}
         for x in param_table:
             param = param_table[x]
@@ -949,6 +984,7 @@ class OpenQuoteContext(OpenContextBase):
         return RET_OK, subplate_frame_table
 
     def get_plate_stock(self, plate_code):
+        """get the stock of the given plate"""
         if plate_code is None or isinstance(plate_code, str) is False:
             error_str = ERROR_STR_PREFIX + "the type of stock_code is wrong"
             return RET_ERROR, error_str
@@ -968,6 +1004,7 @@ class OpenQuoteContext(OpenContextBase):
         return RET_OK, plate_stock_table
 
     def get_broker_queue(self, code):
+        """get teh queue of the broker"""
         if code is None or isinstance(code, str) is False:
             error_str = ERROR_STR_PREFIX + "the type of param in code_list is wrong"
             return RET_ERROR, error_str
@@ -990,7 +1027,7 @@ class OpenQuoteContext(OpenContextBase):
 
     def subscribe(self, stock_code, data_type, push=False):
         """
-        subcribe a sort of data for a stock
+        subscribe a sort of data for a stock
         :param stock_code: string stock_code . For instance, "HK.00700", "US.AAPL"
         :param data_type: string  data type. For instance, "K_1M", "K_MON"
         :param push: push option
@@ -1033,6 +1070,7 @@ class OpenQuoteContext(OpenContextBase):
         unsubcribe a sort of data for a stock
         :param stock_code: string stock_code . For instance, "HK.00700", "US.AAPL"
         :param data_type: string  data type. For instance, "K_1M", "K_MON"
+        :param unpush: bool
         :return: (ret_code, ret_data). ret_code: RET_OK or RET_ERROR.
         """
 
@@ -1190,6 +1228,7 @@ class OpenQuoteContext(OpenContextBase):
         return RET_OK, kline_frame_table
 
     def get_order_book(self, code):
+        """get the order book data"""
         if code is None or isinstance(code, str) is False:
             error_str = ERROR_STR_PREFIX + "the type of code param is wrong"
             return RET_ERROR, error_str
@@ -1207,6 +1246,7 @@ class OpenQuoteContext(OpenContextBase):
 
 
 class OpenHKTradeContext(OpenContextBase):
+    """Class for set context of HK stock trade"""
     cookie = 100000
 
     def __init__(self, host="127.0.0.1", port=11111):
@@ -1214,12 +1254,13 @@ class OpenHKTradeContext(OpenContextBase):
         super(OpenHKTradeContext, self).__init__(host, port, True, False)
 
     def close(self):
-        '''
+        """
         to call close old obj before loop create new, otherwise socket will encounter erro 10053 or more!
-        '''
+        """
         super(OpenHKTradeContext, self).close()
 
     def on_api_socket_reconnected(self):
+        """for API socket reconnected"""
         # auto unlock
         if self._ctx_unlock is not None:
             for i in range(3):
@@ -1229,6 +1270,7 @@ class OpenHKTradeContext(OpenContextBase):
                 sleep(1)
 
     def unlock_trade(self, password):
+        """unlock trade"""
         query_processor = self._get_sync_query_processor(UnlockTrade.pack_req,
                                                          UnlockTrade.unpack_rsp)
 
@@ -1245,6 +1287,7 @@ class OpenHKTradeContext(OpenContextBase):
         return RET_OK, None
 
     def place_order(self, price, qty, strcode, orderside, ordertype=0, envtype=0):
+        """place order"""
         if int(envtype) not in rev_envtype_map:
             error_str = ERROR_STR_PREFIX + "the type of environment param is wrong "
             return RET_ERROR, error_str
@@ -1276,6 +1319,7 @@ class OpenHKTradeContext(OpenContextBase):
         return RET_OK, place_order_table
 
     def set_order_status(self, status, orderid=0, envtype=0):
+        """for setting the status of order"""
         if int(status) not in rev_order_status:
             error_str = ERROR_STR_PREFIX + "the type of status is wrong "
             return RET_ERROR, error_str
@@ -1301,6 +1345,7 @@ class OpenHKTradeContext(OpenContextBase):
         return RET_OK, set_order_table
 
     def change_order(self, price, qty, orderid=0, envtype=0):
+        """for changing the order"""
         if int(envtype) not in rev_envtype_map:
             error_str = ERROR_STR_PREFIX + "the type of environment param is wrong "
             return RET_ERROR, error_str
@@ -1324,7 +1369,6 @@ class OpenHKTradeContext(OpenContextBase):
     def accinfo_query(self, envtype=0):
         """
         query account information
-        :param cookie: request operation flag
         :param envtype: trading environment parameters,0 means real transaction and 1 means simulation trading
         :return:error return RET_ERROR,msg and ok return RET_OK,ret
         """
@@ -1348,6 +1392,7 @@ class OpenHKTradeContext(OpenContextBase):
         return RET_OK, accinfo_frame_table
 
     def order_list_query(self, statusfilter="", envtype=0):
+        """for querying the order list"""
         if int(envtype) not in rev_envtype_map:
             error_str = ERROR_STR_PREFIX + "the type of environment param is wrong "
             return RET_ERROR, error_str
@@ -1371,6 +1416,7 @@ class OpenHKTradeContext(OpenContextBase):
         return RET_OK, order_list_table
 
     def position_list_query(self, envtype=0):
+        """for querying the position list"""
         if int(envtype) not in rev_envtype_map:
             error_str = ERROR_STR_PREFIX + "the type of environment param is wrong "
             return RET_ERROR, error_str
@@ -1395,6 +1441,7 @@ class OpenHKTradeContext(OpenContextBase):
         return RET_OK, position_list_table
 
     def deal_list_query(self, envtype=0):
+        """for querying deal list"""
         if int(envtype) not in rev_envtype_map:
             error_str = ERROR_STR_PREFIX + "the type of environment param is wrong "
             return RET_ERROR, error_str
@@ -1418,6 +1465,7 @@ class OpenHKTradeContext(OpenContextBase):
 
 
 class OpenUSTradeContext(OpenContextBase):
+    """Class for set context of US stock trade"""
     cookie = 100000
 
     def __init__(self, host="127.0.0.1", port=11111):
@@ -1425,12 +1473,13 @@ class OpenUSTradeContext(OpenContextBase):
         super(OpenUSTradeContext, self).__init__(host, port, True, False)
 
     def close(self):
-        '''
+        """
         to call close old obj before loop create new, otherwise socket will encounter erro 10053 or more!
-        '''
+        """
         super(OpenUSTradeContext, self).close()
 
     def on_api_socket_reconnected(self):
+        """for api socket reconnected"""
         # auto unlock
         if self._ctx_unlock is not None:
             for i in range(3):
@@ -1439,6 +1488,7 @@ class OpenUSTradeContext(OpenContextBase):
                     break
 
     def unlock_trade(self, password):
+        """unlock trade"""
         query_processor = self._get_sync_query_processor(UnlockTrade.pack_req,
                                                          UnlockTrade.unpack_rsp)
 
@@ -1456,6 +1506,7 @@ class OpenUSTradeContext(OpenContextBase):
         return RET_OK, None
 
     def place_order(self, price, qty, strcode, orderside, ordertype=2, envtype=0):
+        """place order"""
         if int(envtype) != 0:
             error_str = ERROR_STR_PREFIX + "us stocks temporarily only support real trading "
             return RET_ERROR, error_str
@@ -1487,6 +1538,7 @@ class OpenUSTradeContext(OpenContextBase):
         return RET_OK, place_order_table
 
     def set_order_status(self, status=0, orderid=0, envtype=0):
+        """for setting the statusof order"""
         if int(envtype) != 0:
             error_str = ERROR_STR_PREFIX + "us stocks temporarily only support real trading "
             return RET_ERROR, error_str
@@ -1512,6 +1564,7 @@ class OpenUSTradeContext(OpenContextBase):
         return RET_OK, set_order_table
 
     def change_order(self, price, qty, orderid=0, envtype=0):
+        """for changing the order"""
         if int(envtype) != 0:
             error_str = ERROR_STR_PREFIX + "us stocks temporarily only support real trading "
             return RET_ERROR, error_str
@@ -1533,6 +1586,7 @@ class OpenUSTradeContext(OpenContextBase):
         return RET_OK, change_order_table
 
     def accinfo_query(self, envtype=0):
+        """for querying the information of account"""
         if int(envtype) != 0:
             error_str = ERROR_STR_PREFIX + "us stocks temporarily only support real trading "
             return RET_ERROR, error_str
@@ -1540,7 +1594,7 @@ class OpenUSTradeContext(OpenContextBase):
         query_processor = self._get_sync_query_processor(AccInfoQuery.us_pack_req,
                                                          AccInfoQuery.us_unpack_rsp)
 
-         # the keys of kargs should be corresponding to the actual function arguments
+        # the keys of kargs should be corresponding to the actual function arguments
         kargs = {'cookie': str(self.cookie), 'envtype': '0'}
 
         ret_code, msg, accinfo_list = query_processor(**kargs)
@@ -1553,6 +1607,7 @@ class OpenUSTradeContext(OpenContextBase):
         return RET_OK, accinfo_frame_table
 
     def order_list_query(self, statusfilter="", envtype=0):
+        """for querying order list"""
         if int(envtype) != 0:
             error_str = ERROR_STR_PREFIX + "us stocks temporarily only support real trading "
             return RET_ERROR, error_str
@@ -1576,6 +1631,7 @@ class OpenUSTradeContext(OpenContextBase):
         return RET_OK, order_list_table
 
     def position_list_query(self, envtype=0):
+        """for querying the position"""
         if int(envtype) != 0:
             error_str = ERROR_STR_PREFIX + "us stocks temporarily only support real trading "
             return RET_ERROR, error_str
@@ -1600,6 +1656,7 @@ class OpenUSTradeContext(OpenContextBase):
         return RET_OK, position_list_table
 
     def deal_list_query(self, envtype=0):
+        """for querying the deal list"""
         if int(envtype) != 0:
             error_str = ERROR_STR_PREFIX + "us stocks temporarily only support real trading "
             return RET_ERROR, error_str
