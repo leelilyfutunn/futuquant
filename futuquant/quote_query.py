@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-
+"""
+    Quote query
+"""
 import sys
 import json
 from datetime import datetime
 from datetime import timedelta
-import pandas as pd
 
 '''
  parameter relation Mappings between PLS and Python programs
@@ -94,6 +95,7 @@ ERROR_STR_PREFIX = 'ERROR. '
 
 
 def check_date_str_format(s):
+    """Check the format of date string"""
     try:
         _ = datetime.strptime(s, "%Y-%m-%d")
         return RET_OK, None
@@ -104,6 +106,7 @@ def check_date_str_format(s):
 
 
 def extract_pls_rsp(rsp_str):
+    """extract the response of PLS"""
     try:
         rsp = json.loads(rsp_str)
     except ValueError:
@@ -114,7 +117,7 @@ def extract_pls_rsp(rsp_str):
     error_code = int(rsp['ErrCode'])
 
     if error_code != 0:
-        error_str = ERROR_STR_PREFIX +  str(error_code) + ' ' + rsp['ErrDesc']
+        error_str = ERROR_STR_PREFIX + str(error_code) + ' ' + rsp['ErrDesc']
         return RET_ERROR, error_str, None
 
     if 'RetData' not in rsp:
@@ -125,13 +128,14 @@ def extract_pls_rsp(rsp_str):
 
 
 def normalize_date_format(date_str):
+    """normalize the format of data"""
     date_obj = datetime.strptime(date_str, "%Y-%m-%d")
     ret = date_obj.strftime("%Y-%m-%d")
     return ret
 
 
 def split_stock_str(stock_str):
-
+    """split the stock string"""
     if isinstance(stock_str, str) is False:
         error_str = ERROR_STR_PREFIX + "value of stock_str is %s of type %s, and type %s is expected" \
                                        % (stock_str, type(stock_str), str(str))
@@ -155,6 +159,7 @@ def split_stock_str(stock_str):
 
 def merge_stock_str(market, partial_stock_str):
     """
+    Merge the string of stocks
     :param market: market code
     :param partial_stock_str: original stock code string. i.e. "AAPL","00700", "000001"
     :return: unified representation of a stock code. i.e. "US.AAPL", "HK.00700", "SZ.000001"
@@ -169,6 +174,7 @@ def merge_stock_str(market, partial_stock_str):
 
 def str2binary(s):
     """
+    Transfer string to binary
     :param s: string content to be transformed to binary
     :return: binary
     """
@@ -177,7 +183,7 @@ def str2binary(s):
 
 def binary2str(b):
     """
-
+    Transfer binary to string
     :param b: binary content to be transformed to string
     :return: string
     """
@@ -254,7 +260,6 @@ class TradeDayQuery:
     def unpack_rsp(cls, rsp_str):
         """
         Convert from PLS response to user response
-        :param rsp_str:
         :return: trading day list
 
         Example:
@@ -303,14 +308,16 @@ class TradeDayQuery:
 
 
 class StockBasicInfoQuery:
-
+    """
+    Query Conversion for getting stock basic information.
+    """
     def __init__(self):
         pass
 
     @classmethod
     def pack_req(cls, market, stock_type='STOCK'):
         """
-
+        Convert from user request for trading days to PLS request
         :param market:
         :param stock_type:
         :return: json string for request
@@ -344,8 +351,7 @@ class StockBasicInfoQuery:
     @classmethod
     def unpack_rsp(cls, rsp_str):
         """
-
-        :param rsp_str:
+        Convert from PLS response to user response
         :return: json string for request
 
         Example:
@@ -393,7 +399,8 @@ class StockBasicInfoQuery:
                             "stock_type": rev_sec_type_map[int(record["StockType"])],
                             "stock_child_type": (rev_wrt_type_map[int(record["StockChildType"])] if
                                                  int(record["StockType"]) == 5 else 0),
-                            "owner_stock_code": (merge_stock_str(int(record["OwnerMarketType"]), record["OwnerStockCode"])
+                            "owner_stock_code": (merge_stock_str(int(record["OwnerMarketType"]),
+                                                                 record["OwnerStockCode"])
                                                  if int(record["StockType"]) == 5 else 0),
                             "listing_date": record["ListTime"]
                             }
@@ -402,16 +409,15 @@ class StockBasicInfoQuery:
 
 
 class MarketSnapshotQuery:
-
+    """
+    Query Conversion for getting market snapshot.
+    """
     def __init__(self):
         pass
 
     @classmethod
     def pack_req(cls, stock_list):
-        """
-        :param stock_list:
-        :return:
-        """
+        """Convert from user request for trading days to PLS request"""
         stock_tuple_list = []
         failure_tuple_list = []
         for stock_str in stock_list:
@@ -439,6 +445,7 @@ class MarketSnapshotQuery:
 
     @classmethod
     def unpack_rsp(cls, rsp_str):
+        """Convert from PLS response to user response"""
         ret, msg, rsp = extract_pls_rsp(rsp_str)
         if ret != RET_OK:
             return RET_ERROR, msg, None
@@ -488,12 +495,15 @@ class MarketSnapshotQuery:
 
 
 class RtDataQuery:
-
+    """
+    Query Conversion for getting stock real-time data.
+    """
     def __init__(self):
         pass
 
     @classmethod
     def pack_req(cls, stock_str):
+        """Convert from user request for trading days to PLS request"""
         ret, content = split_stock_str(stock_str)
         if ret == RET_ERROR:
             error_str = content
@@ -509,6 +519,7 @@ class RtDataQuery:
 
     @classmethod
     def unpack_rsp(cls, rsp_str):
+        """Convert from PLS response to user response"""
         ret, msg, rsp = extract_pls_rsp(rsp_str)
         if ret != RET_OK:
             return RET_ERROR, msg, None
@@ -538,12 +549,15 @@ class RtDataQuery:
 
 
 class SubplateQuery:
+    """
+    Query Conversion for getting sub-plate stock list.
+    """
     def __init__(self):
         pass
 
     @classmethod
     def pack_req(cls, market, plate_class):
-
+        """Convert from user request for trading days to PLS request"""
         if market not in mkt_map:
             error_str = ERROR_STR_PREFIX + "market is %s, which is not valid. (%s)" \
                                            % (market, ",".join([x for x in mkt_map]))
@@ -564,6 +578,7 @@ class SubplateQuery:
 
     @classmethod
     def unpack_rsp(cls, rsp_str):
+        """Convert from PLS response to user response"""
         ret, msg, rsp = extract_pls_rsp(rsp_str)
         if ret != RET_OK:
             return RET_ERROR, msg, None
@@ -587,11 +602,15 @@ class SubplateQuery:
 
 
 class PlateStockQuery:
+    """
+    Query Conversion for getting all the stock list of a given plate.
+    """
     def __init__(self):
         pass
 
     @classmethod
     def pack_req(cls, plate_code):
+        """Convert from user request for trading days to PLS request"""
         ret_code, content = split_stock_str(plate_code)
         if ret_code != RET_OK:
             msg = content
@@ -614,6 +633,7 @@ class PlateStockQuery:
 
     @classmethod
     def unpack_rsp(cls, rsp_str):
+        """Convert from PLS response to user response"""
         ret, msg, rsp = extract_pls_rsp(rsp_str)
         if ret != RET_OK:
             return RET_ERROR, msg, None
@@ -641,11 +661,15 @@ class PlateStockQuery:
 
 
 class BrokerQueueQuery:
+    """
+    Query Conversion for getting broker queue information.
+    """
     def __init__(self):
         pass
 
     @classmethod
     def pack_req(cls, stock_str):
+        """Convert from user request for trading days to PLS request"""
         ret_code, content = split_stock_str(stock_str)
         if ret_code == RET_ERROR:
             error_str = content
@@ -663,6 +687,7 @@ class BrokerQueueQuery:
 
     @classmethod
     def unpack_rsp(cls, rsp_str):
+        """Convert from PLS response to user response"""
         ret, msg, rsp = extract_pls_rsp(rsp_str)
         if ret != RET_OK:
             return RET_ERROR, msg, None
@@ -693,12 +718,15 @@ class BrokerQueueQuery:
 
 
 class HistoryKlineQuery:
-
+    """
+    Query Conversion for getting historic Kline data.
+    """
     def __init__(self):
         pass
 
     @classmethod
     def pack_req(cls, stock_str, start_date=None, end_date=None, ktype='K_DAY', autype='qfq'):
+        """Convert from user request for trading days to PLS request"""
         ret, content = split_stock_str(stock_str)
         if ret == RET_ERROR:
             error_str = content
@@ -749,6 +777,7 @@ class HistoryKlineQuery:
 
     @classmethod
     def unpack_rsp(cls, rsp_str):
+        """Convert from PLS response to user response"""
         ret, msg, rsp = extract_pls_rsp(rsp_str)
         if ret != RET_OK:
             return RET_ERROR, msg, None
@@ -780,12 +809,15 @@ class HistoryKlineQuery:
 
 
 class ExrightQuery:
-
+    """
+    Query Conversion for getting exclude-right information of stock.
+    """
     def __init__(self):
         pass
 
     @classmethod
     def pack_req(cls, stock_list):
+        """Convert from user request for trading days to PLS request"""
         stock_tuple_list = []
         failure_tuple_list = []
         for stock_str in stock_list:
@@ -813,6 +845,7 @@ class ExrightQuery:
 
     @classmethod
     def unpack_rsp(cls, rsp_str):
+        """Convert from PLS response to user response"""
         ret, msg, rsp = extract_pls_rsp(rsp_str)
         if ret != RET_OK:
             return RET_ERROR, msg, None
@@ -848,13 +881,16 @@ class ExrightQuery:
 
 
 class SubscriptionQuery:
-
+    """
+    Query Conversion for getting user's subscription information.
+    """
     def __init__(self):
         pass
 
     @classmethod
     def pack_subscribe_req(cls, stock_str, data_type):
         """
+        Pack subscribe user's request
         :param stock_str:
         :param data_type:
         :return:
@@ -884,7 +920,7 @@ class SubscriptionQuery:
 
     @classmethod
     def unpack_subscribe_rsp(cls, rsp_str):
-
+        """Unpack the subscribed response"""
         ret, msg, content = extract_pls_rsp(rsp_str)
         if ret != RET_OK:
             return RET_ERROR, msg, None
@@ -893,6 +929,7 @@ class SubscriptionQuery:
 
     @classmethod
     def pack_unsubscribe_req(cls, stock_str, data_type):
+        """Pack the un-subscribed request"""
         ret, content = split_stock_str(stock_str)
         if ret == RET_ERROR:
             error_str = content
@@ -919,6 +956,7 @@ class SubscriptionQuery:
 
     @classmethod
     def unpack_unsubscribe_rsp(cls, rsp_str):
+        """Unpack the un-subscribed response"""
         ret, msg, content = extract_pls_rsp(rsp_str)
         if ret != RET_OK:
             return RET_ERROR, msg, None
@@ -927,6 +965,7 @@ class SubscriptionQuery:
 
     @classmethod
     def pack_subscription_query_req(cls, query):
+        """Pack the subscribed query request"""
         req = {"Protocol": "1007",
                "Version": "1",
                "ReqParam": {"QueryAllSocket": str(query)}
@@ -936,6 +975,7 @@ class SubscriptionQuery:
 
     @classmethod
     def unpack_subscription_query_rsp(cls, rsp_str):
+        """Unpack the subscribed query response"""
         ret, msg, rsp = extract_pls_rsp(rsp_str)
         if ret != RET_OK:
             return RET_ERROR, msg, None
@@ -965,6 +1005,7 @@ class SubscriptionQuery:
 
     @classmethod
     def pack_push_req(cls, stock_str, data_type):
+        """Pack the pushed response"""
         ret, content = split_stock_str(stock_str)
         if ret == RET_ERROR:
             error_str = content
@@ -990,12 +1031,7 @@ class SubscriptionQuery:
 
     @classmethod
     def pack_unpush_req(cls, stock_str, data_type):
-        """
-        by lily --------------------
-        :param stock_str:
-        :param data_type:
-        :return:
-        """
+        """Pack the un-pushed request"""
         ret, content = split_stock_str(stock_str)
         if ret == RET_ERROR:
             error_str = content
@@ -1022,16 +1058,15 @@ class SubscriptionQuery:
 
 
 class StockQuoteQuery:
+    """
+    Query Conversion for getting stock quote data.
+    """
     def __init__(self):
         pass
 
     @classmethod
     def pack_req(cls, stock_list):
-        """
-
-        :param stock_list:
-        :return:
-        """
+        """Convert from user request for trading days to PLS request"""
         stock_tuple_list = []
         failure_tuple_list = []
         for stock_str in stock_list:
@@ -1059,6 +1094,7 @@ class StockQuoteQuery:
 
     @classmethod
     def unpack_rsp(cls, rsp_str):
+        """Convert from PLS response to user response"""
         ret, msg, rsp = extract_pls_rsp(rsp_str)
         if ret != RET_OK:
             return RET_ERROR, msg, None
@@ -1091,12 +1127,13 @@ class StockQuoteQuery:
 
 
 class TickerQuery:
-
+    """Stick ticker data query class"""
     def __init__(self):
         pass
 
     @classmethod
     def pack_req(cls, stock_str, num=500):
+        """Convert from user request for trading days to PLS request"""
         ret, content = split_stock_str(stock_str)
         if ret == RET_ERROR:
             error_str = content
@@ -1127,6 +1164,7 @@ class TickerQuery:
 
     @classmethod
     def unpack_rsp(cls, rsp_str):
+        """Convert from PLS response to user response"""
         ret, msg, rsp = extract_pls_rsp(rsp_str)
         if ret != RET_OK:
             return RET_ERROR, msg, None
@@ -1154,12 +1192,13 @@ class TickerQuery:
 
 
 class CurKlineQuery:
-
+    """Stock Kline data query class"""
     def __init__(self):
         pass
 
     @classmethod
     def pack_req(cls, stock_str, num, ktype='K_DAY', autype='qfq'):
+        """Convert from user request for trading days to PLS request"""
         ret, content = split_stock_str(stock_str)
         if ret == RET_ERROR:
             error_str = content
@@ -1178,7 +1217,7 @@ class CurKlineQuery:
             return RET_ERROR, error_str, None
 
         if isinstance(num, int) is False:
-            error_str = ERROR_STR_PREFIX + "num is %s of type %s, which type shoud be %s" \
+            error_str = ERROR_STR_PREFIX + "num is %s of type %s, which type should be %s" \
                                            % (num, str(type(num)), str(int))
             return RET_ERROR, error_str, None
 
@@ -1201,6 +1240,7 @@ class CurKlineQuery:
 
     @classmethod
     def unpack_rsp(cls, rsp_str):
+        """Convert from PLS response to user response"""
         ret, msg, rsp = extract_pls_rsp(rsp_str)
         if ret != RET_OK:
             return RET_ERROR, msg, None
@@ -1222,7 +1262,7 @@ class CurKlineQuery:
         try:
             k_type = int(k_type)
             k_type = rev_ktype_map[k_type]
-        except Exception:
+        except TypeError:
             err = sys.exc_info()[1]
             error_str = ERROR_STR_PREFIX + str(err) + str(rsp_data["KLType"])
             return RET_ERROR, error_str, None
@@ -1245,12 +1285,15 @@ class CurKlineQuery:
 
 
 class OrderBookQuery:
-
+    """
+    Query Conversion for getting stock order book data.
+    """
     def __init__(self):
         pass
 
     @classmethod
     def pack_req(cls, stock_str):
+        """Convert from user request for trading days to PLS request"""
         ret, content = split_stock_str(stock_str)
         if ret == RET_ERROR:
             error_str = content
@@ -1266,6 +1309,7 @@ class OrderBookQuery:
 
     @classmethod
     def unpack_rsp(cls, rsp_str):
+        """Convert from PLS response to user response"""
         ret, msg, rsp = extract_pls_rsp(rsp_str)
         if ret != RET_OK:
             return RET_ERROR, msg, None
@@ -1298,7 +1342,7 @@ class GlobalStateQuery:
         pass
 
     @classmethod
-    def pack_req(cls, state_type = 0):
+    def pack_req(cls, state_type=0):
         """
         Convert from user request for trading days to PLS request
         :param state_type: for reserved, no use now !
@@ -1306,7 +1350,7 @@ class GlobalStateQuery:
 
         req_str: '{"Protocol":"1029","ReqParam":{"StateType":"0"},"Version":"1"}'
         """
-        # '''Parameter check'''
+        '''Parameter check'''
 
         # pack to json
         req = {"Protocol": "1029",
@@ -1321,8 +1365,6 @@ class GlobalStateQuery:
     def unpack_rsp(cls, rsp_str):
         """
         Convert from PLS response to user response
-        :param rsp_str:
-        :return:
 
         Example:
 
@@ -1352,4 +1394,3 @@ class GlobalStateQuery:
         rsp_data = rsp['RetData']
 
         return RET_OK, "", rsp_data
-
